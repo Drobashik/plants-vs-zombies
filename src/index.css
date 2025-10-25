@@ -1,0 +1,93 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+#root {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 2rem;
+}
+
+.container {
+  width: 100%;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  flex: 1;
+  max-width: 100px;
+  height: 100px;
+
+  cursor: pointer;
+
+  background-color: rgb(21, 218, 37);
+
+  border: 1px solid #00000015;
+}
+
+.cell:hover {
+  background-color: rgb(11, 189, 26);
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+
+  margin-bottom: 1rem;
+}
+
+button {
+  height: 40px;
+  cursor: pointer;
+
+  padding: 0 2rem;
+
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+}
+
+.entity.zombie {
+  width: 100%;
+  position: relative;
+
+  transform: translate(-50%, -35%);
+  left: 100%;
+
+  z-index: 99;
+}
+
+.entity.zombie.walking {
+  animation: walking linear infinite;
+}
+
+.entity.zombie.paused {
+  animation-play-state: paused;
+}
+
+@keyframes walking {
+  0% {
+    left: 100%;
+  }
+
+  100% {
+    left: 0%;
+  }
+}
