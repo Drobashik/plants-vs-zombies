@@ -1,5 +1,5 @@
-import zombieImage from "../images/zombie.webp";
-import { MovingEntity } from "./MovingEntity";
+import zombieImage from "../../images/zombie.webp";
+import { MovingEntity } from "../entities/MovingEntity";
 
 export class Zombie extends MovingEntity {
   name = "Zombie";
@@ -13,7 +13,5 @@ export class Zombie extends MovingEntity {
 
   makeStep() {
     this.x -= 1;
-
-    return this.x;
   }
 }

@@ -1,6 +1,6 @@
-import type { Entity } from "./Entity";
+import type { Entity } from "../entities/Entity";
 import { GameLoop } from "./GameLoop";
-import type { GardenMap } from "./GardenMap";
+import type { GardenMap } from "../GardenMap";
 
 export const getRandom = (min: number, max: number) => {
   return Math.round(Math.random() * (max - min) + min);
@@ -9,9 +9,9 @@ export const getRandom = (min: number, max: number) => {
 export class Spawner {
   constructor(
     private garden: GardenMap,
-    public gameLoop: GameLoop,
     private minSpawnInterval: number,
-    private maxSpawnInterval: number
+    private maxSpawnInterval: number,
+    public spawnerLoop: GameLoop
   ) {}
 
   spawnEntity<T extends Entity>(
@@ -32,16 +32,12 @@ export class Spawner {
     EntityInstance: new (x: number, y: number) => T,
     startSpanwing: (entity: T) => void
   ) {
-    const entity = this.spawnEntity(EntityInstance);
-
-    startSpanwing(entity);
-
-    this.gameLoop.loop(() => {
+    this.spawnerLoop.loop(() => {
       const entity = this.spawnEntity(EntityInstance);
 
       startSpanwing(entity);
 
-      this.gameLoop.setSpeed(
+      this.spawnerLoop.setSpeed(
         getRandom(this.minSpawnInterval, this.maxSpawnInterval)
       );
 

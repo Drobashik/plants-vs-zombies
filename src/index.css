@@ -10,6 +10,10 @@ body,
   height: 100%;
 }
 
+body {
+  background-color: rgb(161, 197, 250);
+}
+
 #root {
   display: flex;
   justify-content: center;
@@ -20,6 +24,10 @@ body,
 
 .container {
   width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
 }
 
 .row {
@@ -64,14 +72,17 @@ button {
   font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
 }
 
-.entity.zombie {
+.entity {
   width: 100%;
   position: relative;
+  z-index: 99;
 
+  padding: .5rem;
+}
+
+.entity.zombie {
   transform: translate(-50%, -35%);
   left: 100%;
-
-  z-index: 99;
 }
 
 .entity.zombie.walking {
@@ -90,4 +101,49 @@ button {
   100% {
     left: 0%;
   }
+}
+
+.head-panel {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 5rem;
+}
+
+.tool-menu {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  gap: 1rem;
+}
+
+.tool-plant {
+  max-width: 100px;
+  height: 100px;
+
+  padding: 0.5rem;
+
+  background-color: rgb(221, 221, 221);
+
+  border: 1px solid #00000071;
+
+  cursor: pointer;
+}
+
+.tool-plant.selected {
+  background-color: rgb(145, 255, 195);
+}
+
+.tool-plant:hover {
+  background-color: rgb(194, 194, 194);
+}
+
+.tool-plant img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
 }
