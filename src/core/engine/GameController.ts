@@ -18,15 +18,19 @@ export class GameController {
 
     this.moveLoop.loop(() => {
       this.render();
+  
+      if (entity.x === 0) {
+        this.garden.removeEntity(entity);
+
+        return true;
+      }
+
       this.garden.removeEntity(entity);
       entity.makeStep();
       this.garden.placeEntity(entity);
+      
 
-      if (entity.x < 0) {
-        this.garden.removeEntity(entity);
-      }
-
-      return entity.x < 0;
+      return false;
     });
   }
 

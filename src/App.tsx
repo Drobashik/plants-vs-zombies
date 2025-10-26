@@ -45,9 +45,9 @@ function App() {
 
   const handleGameStartStop = () => {
     if (isPlaying.current) {
-      moveLoop.clearFullLoop();
+      moveLoop.clearLoop();
 
-      spawner.spawnerLoop.clearFullLoop();
+      spawner.spawnerLoop.clearLoop();
     }
 
     isPlaying.current = !isPlaying.current;
@@ -69,8 +69,10 @@ function App() {
 
     garden.placeEntity(createdEntity);
 
-    rerender()
+    rerender();
   };
+
+  console.log(garden.cells);
 
   return (
     <div className="container">
@@ -82,7 +84,10 @@ function App() {
               className={`tool-plant ${plantTool.selected ? "selected" : ""}`}
               onClick={() => togglePlant(plantTool.plant.name)}
             >
-              <img src={plantTool.plant.image} alt={`${plantTool.plant.name} menu`} />
+              <img
+                src={plantTool.plant.image}
+                alt={`${plantTool.plant.name} menu`}
+              />
             </div>
           ))}
         </div>
@@ -103,19 +108,19 @@ function App() {
                 key={index}
                 onClick={() => addPlant(cell.x, cell.y)}
               >
-                {cell.entity && (
+                {cell.entities.map((entity) => (
                   <img
+                    key={entity.id}
                     style={{
-                      opacity: 1,
-                      animationDuration: `${cell.entity.speed}ms`,
+                      animationDuration: `${entity.speed}ms`,
                     }}
-                    className={`entity ${cell.entity?.name.toLowerCase()} ${
+                    className={`entity ${entity.name.toLowerCase()} ${
                       isGameStarted ? "walking" : "paused"
                     }`}
-                    src={cell.entity?.image}
-                    alt={cell.entity?.name}
+                    src={entity.image}
+                    alt={entity.name}
                   />
-                )}
+                ))}
               </div>
             ))}
           </div>

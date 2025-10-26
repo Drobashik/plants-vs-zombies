@@ -1,4 +1,6 @@
 export class Entity {
+  id = Date.now()
+
   name = "Entity name";
   image = ''
 

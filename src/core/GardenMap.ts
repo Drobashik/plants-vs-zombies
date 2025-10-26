@@ -3,13 +3,13 @@ import type { Entity } from "./entities/Entity";
 type Cell = {
   x: number;
   y: number;
-  entity: Entity | null;
+  entities: Entity[];
 };
 
 export class GardenMap {
   cells: Cell[][] = [];
 
-  constructor(private width: number, private height: number) {
+  constructor(public width: number, public height: number) {
     this.createMap();
   }
 
@@ -18,7 +18,7 @@ export class GardenMap {
       this.cells.push([]);
 
       for (let x = 0; x < this.height; x++) {
-        this.cells[y].push({ x, y, entity: null });
+        this.cells[y].push({ x, y, entities: [] });
       }
     }
   }
@@ -26,32 +26,38 @@ export class GardenMap {
   placeEntity(entity: Entity) {
     const { x, y } = entity;
 
-    this.cells[y][x] = { x, y, entity };
+    this.cells[y][x] = {
+      x,
+      y,
+      entities: [...this.cells[y][x].entities, entity],
+    };
   }
 
   removeEntity(entity: Entity) {
     const { x, y } = entity;
 
-    this.cells[y][x].entity = null;
+    this.cells[y][x].entities = this.cells[y][x].entities.filter(
+      (entityToFilter) => entityToFilter.id !== entity.id
+    );
   }
 
   getEntities<T extends Entity>(
     EntityInstance?: new (x: number, y: number) => T
   ) {
-    const entities = [];
+    const resultEntities: T[] = [];
 
     for (const innerCells of this.cells) {
       for (const cell of innerCells) {
-        if (
-          cell.entity &&
-          EntityInstance &&
-          cell.entity instanceof EntityInstance
-        ) {
-          entities.push(cell.entity);
+        const { entities } = cell;
+
+        for (const entity of entities) {
+          if (entity && EntityInstance && entity instanceof EntityInstance) {
+            resultEntities.push(entity);
+          }
         }
       }
     }
 
-    return entities;
+    return resultEntities;
   }
 }

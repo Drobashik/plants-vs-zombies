@@ -75,7 +75,7 @@ export class GameLoop {
     };
   }
 
-  clearFullLoop() {
+  clearLoop() {
     for (const id of this.timers) clearTimeout(id);
     this.timers.clear();
   }

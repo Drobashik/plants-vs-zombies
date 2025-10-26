@@ -50,6 +50,8 @@ body {
   background-color: rgb(21, 218, 37);
 
   border: 1px solid #00000015;
+
+  position: relative;
 }
 
 .cell:hover {
@@ -77,11 +79,12 @@ button {
   position: relative;
   z-index: 99;
 
-  padding: .5rem;
+  padding: 0.5rem;
 }
 
 .entity.zombie {
-  transform: translate(-50%, -35%);
+  position: absolute;
+  transform: translate(-50%, -15%);
   left: 100%;
 }
 
