@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useRef, useState } from "react";
 import { GardenMap } from "./core/GardenMap";
-import { GameLoop } from "./core/engine/GameLoop";
 import { Spawner } from "./core/engine/Spawner";
 import { GameController } from "./core/engine/GameController";
 import {
@@ -16,18 +15,15 @@ import { Peashooter } from "./core/plants/Peashooter";
 
 const garden = new GardenMap(GARDEN_WIDTH, GARDEN_HEIGHT);
 
-const moveLoop = new GameLoop();
-
-const spawner = new Spawner(
+const zombieSpawner = new Spawner(
   garden,
   MIN_SPAWN_INTERVAL,
-  MAX_SPANW_INTERVAL,
-  new GameLoop()
+  MAX_SPANW_INTERVAL
 );
 
 const plantMenu = new PlantMenu([Sunflower, Peashooter]);
 
-const gameController = new GameController(garden, spawner, moveLoop);
+const gameController = new GameController(garden, zombieSpawner);
 
 function App() {
   const [_, triggerRender] = useState(0);
@@ -45,9 +41,9 @@ function App() {
 
   const handleGameStartStop = () => {
     if (isPlaying.current) {
-      moveLoop.clearLoop();
+      gameController.moveLoop.clearLoop();
 
-      spawner.spawnerLoop.clearLoop();
+      zombieSpawner.spawnerLoop.clearLoop();
     }
 
     isPlaying.current = !isPlaying.current;
@@ -71,8 +67,6 @@ function App() {
 
     rerender();
   };
-
-  console.log(garden.cells);
 
   return (
     <div className="container">
@@ -111,13 +105,14 @@ function App() {
                 {cell.entities.map((entity) => (
                   <img
                     key={entity.id}
-                    style={{
+                    style={entity.type !== 'plant' ? {
                       animationDuration: `${entity.speed}ms`,
-                    }}
-                    className={`entity ${entity.name.toLowerCase()} ${
-                      isGameStarted ? "walking" : "paused"
+                    } : {}}
+                    className={`entity ${entity.type} ${
+                      isGameStarted ? entity.action : "paused"
                     }`}
                     src={entity.image}
+                    data-id={entity.id}
                     alt={entity.name}
                   />
                 ))}

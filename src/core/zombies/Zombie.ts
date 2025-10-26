@@ -2,10 +2,14 @@ import zombieImage from "../../images/zombie.webp";
 import { MovingEntity } from "../entities/MovingEntity";
 
 export class Zombie extends MovingEntity {
-  name = "Zombie";
+  type = "zombie";
+
+  name = "zombie";
   image = zombieImage;
 
-  speed = 7500;
+  speed = 5000;
+
+  damage = 10;
 
   constructor(public x: number, public y: number) {
     super(x, y);

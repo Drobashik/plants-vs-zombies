@@ -1,10 +1,21 @@
+export type EntityClass<T> = new (x: number, y: number) => T;
+
 export class Entity {
-  id = Date.now()
+  id = Date.now();
 
-  name = "Entity name";
-  image = ''
+  type = "unknown";
+  name = "entity";
+  image = "";
 
-  speed = 0
+  action = "paused";
+
+  health = 0;
+
+  speed = 0;
 
   constructor(public x: number, public y: number) {}
+
+  takeDamage(damage: number) {
+    this.health -= damage;
+  }
 }

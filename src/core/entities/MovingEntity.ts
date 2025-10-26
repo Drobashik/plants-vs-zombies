@@ -1,10 +1,19 @@
 import { Entity } from "./Entity";
 
+export type MovingEntityAction = "walking" | "paused" | "damaging";
+
 export class MovingEntity extends Entity {
   name = "Entity name";
   image = "";
 
+  isDamaging = false;
+
+  damage = 1;
+
   speed = 1000; // seconds per cell
+  damageSpeed = 1000;
+
+  action: MovingEntityAction = "walking";
 
   constructor(public x: number, public y: number) {
     super(x, y);

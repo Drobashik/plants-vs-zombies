@@ -2,13 +2,11 @@ import { Plant } from "./Plant";
 import sunflowerImage from "../../images/sunflower.webp";
 
 export class Sunflower extends Plant {
-  static registryName = "sunflower";
-
-  name = "Sunflower";
+  name = "sunflower";
 
   image = sunflowerImage;
 
-  speed = 0;
+  health = 30
 
   constructor(public x: number, public y: number) {
     super(x, y);
