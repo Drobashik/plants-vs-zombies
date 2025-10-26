@@ -1,4 +1,4 @@
-import type { Entity } from "./entities/Entity";
+import type { Entity, EntityClass } from "./entities/Entity";
 
 type Cell = {
   x: number;
@@ -14,10 +14,10 @@ export class GardenMap {
   }
 
   createMap() {
-    for (let y = 0; y < this.width; y++) {
+    for (let y = 0; y < this.height; y++) {
       this.cells.push([]);
 
-      for (let x = 0; x < this.height; x++) {
+      for (let x = 0; x < this.width; x++) {
         this.cells[y].push({ x, y, entities: [] });
       }
     }
@@ -41,9 +41,11 @@ export class GardenMap {
     );
   }
 
-  getEntities<T extends Entity>(
-    EntityInstance?: new (x: number, y: number) => T
-  ) {
+  getCellEntities(x: number, y: number) {
+    return this.cells[y][x].entities;
+  }
+
+  getEntities<T extends Entity>(EntityInstance?: EntityClass<T>) {
     const resultEntities: T[] = [];
 
     for (const innerCells of this.cells) {

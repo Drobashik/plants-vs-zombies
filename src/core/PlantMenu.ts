@@ -1,8 +1,9 @@
+import type { EntityClass } from "./entities/Entity";
 import { Plant } from "./plants/Plant";
 
-type PlantClass<T> = new (x: number, y: number) => T;
+
 type PlantTool<T> = {
-  Instance: PlantClass<T>;
+  Instance: EntityClass<T>;
   selected: boolean;
   plant: T;
 };
@@ -12,7 +13,7 @@ export class PlantMenu<T extends Plant> {
 
   selectedPlant: PlantTool<T> | null = null;
 
-  constructor(private PlantInstances: PlantClass<T>[]) {
+  constructor(private PlantInstances: EntityClass<T>[]) {
     for (const PlantInstance of this.PlantInstances) {
       this.plantTools.push({
         Instance: PlantInstance,

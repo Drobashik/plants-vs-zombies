@@ -82,30 +82,116 @@ button {
   padding: 0.5rem;
 }
 
+.entity.plant {
+  max-width: 75px;
+  transform-origin: 50% 100%; 
+}
+
+.entity.plant.paused {
+  --sway-deg: 1.3deg;
+  --sway-amp: 2%;
+  --sway-dur: 1400ms;
+
+  animation: plant-sway var(--sway-dur) ease-in-out infinite;
+}
+
+@keyframes plant-sway {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(calc(var(--sway-amp) * -0.5)) rotate(var(--sway-deg));
+  }
+  50% {
+    transform: translateY(calc(var(--sway-amp) * -1)) rotate(0deg);
+  }
+  75% {
+    transform: translateY(calc(var(--sway-amp) * -0.5))
+      rotate(calc(var(--sway-deg) * -1));
+  }
+}
+
 .entity.zombie {
   position: absolute;
-  transform: translate(-50%, -15%);
   left: 100%;
+  transform: translate(-50%, -15%);
+  transform-origin: 50% 100%;
+  will-change: left, transform, filter;
 }
 
 .entity.zombie.walking {
-  animation: walking linear infinite;
+  --move-dur: 12s; /* час від 100% до 0% */
+  --gait-dur: 450ms; /* ритм кроку */
+
+  animation: march-x var(--move-dur) linear infinite,
+    gait var(--gait-dur) cubic-bezier(0.25, 0.8, 0.3, 1) infinite;
 }
 
 .entity.zombie.paused {
   animation-play-state: paused;
 }
 
-@keyframes walking {
-  0% {
+.entity.zombie.walking.damaging,
+.entity.zombie.damaging {
+  --damage-dur: 520ms;
+  --recoil-px: 6px;
+  --squash: 0.94;
+  --tint: 1;
+
+  animation: damage var(--damage-dur) cubic-bezier(0.3, 0.7, 0.4, 0.9) infinite;
+}
+
+@keyframes march-x {
+  from {
     left: 100%;
   }
-
-  100% {
+  to {
     left: 0%;
   }
 }
 
+@keyframes gait {
+  0%,
+  100% {
+    transform: translate(-50%, -15%) rotate(0deg);
+  }
+  25% {
+    transform: translate(-50%, -16.5%) rotate(1.1deg);
+  }
+  50% {
+    transform: translate(-50%, -18%) rotate(0deg);
+  }
+  75% {
+    transform: translate(-50%, -16.5%) rotate(-1.1deg);
+  }
+}
+
+@keyframes damage {
+  0% {
+    transform: translate(-50%, -15%) rotate(0deg) scale(1);
+    filter: none;
+  }
+  25% {
+    transform: translate(calc(-50% - 2px), -16%) rotate(1deg)
+      scale(1.02, var(--squash));
+    filter: brightness(1.08) saturate(1.05);
+  }
+  45% {
+    transform: translate(calc(-50% + var(--recoil-px)), -14.5%) rotate(-1.2deg)
+      scale(0.98, 1.02);
+    filter: brightness(calc(1 + 0.2 * var(--tint))) saturate(1.1);
+  }
+  70% {
+    transform: translate(calc(-50% + 1px), -15.5%) rotate(0.4deg)
+      scale(1.01, 0.98);
+    filter: brightness(1.03);
+  }
+  100% {
+    transform: translate(-50%, -15%) rotate(0deg) scale(1);
+    filter: none;
+  }
+}
 .head-panel {
   display: flex;
 
@@ -124,8 +210,8 @@ button {
 }
 
 .tool-plant {
-  max-width: 100px;
-  height: 100px;
+  max-width: 85px;
+  height: 85px;
 
   padding: 0.5rem;
 
