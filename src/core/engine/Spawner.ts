@@ -17,13 +17,11 @@ export class Spawner {
   spawnEntity<T extends Entity>(
     EntityInstance: new (x: number, y: number) => T
   ) {
-    const randomY = getRandom(0, 4);
+    const randomY = getRandom(0, this.garden.height - 1);
 
     const entity = new EntityInstance(8, randomY);
 
-    if (!this.garden.cells[entity.y][entity.x].entity) {
-      this.garden.placeEntity(entity);
-    }
+    this.garden.placeEntity(entity);
 
     return entity;
   }

@@ -1,8 +1,8 @@
 import { Plant } from "./plants/Plant";
 
-type PlantInstanceType<T> = new (x: number, y: number) => T;
+type PlantClass<T> = new (x: number, y: number) => T;
 type PlantTool<T> = {
-  Instance: PlantInstanceType<T>;
+  Instance: PlantClass<T>;
   selected: boolean;
   plant: T;
 };
@@ -12,7 +12,7 @@ export class PlantMenu<T extends Plant> {
 
   selectedPlant: PlantTool<T> | null = null;
 
-  constructor(private PlantInstances: PlantInstanceType<T>[]) {
+  constructor(private PlantInstances: PlantClass<T>[]) {
     for (const PlantInstance of this.PlantInstances) {
       this.plantTools.push({
         Instance: PlantInstance,
@@ -30,12 +30,12 @@ export class PlantMenu<T extends Plant> {
 
     const selected = this.plantTools.find((plant) => plant.selected);
 
-    const FoundInstance = this.PlantInstances.find(
+    const SelectedInstance = this.PlantInstances.find(
       (Instance) => selected?.plant instanceof Instance
     );
 
-    if (selected && FoundInstance) {
-      this.selectedPlant = { ...selected, Instance: FoundInstance };
+    if (selected && SelectedInstance) {
+      this.selectedPlant = { ...selected, Instance: SelectedInstance };
     } else {
       this.selectedPlant = null;
     }
