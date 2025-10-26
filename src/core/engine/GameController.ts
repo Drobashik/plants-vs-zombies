@@ -1,8 +1,8 @@
 import type { GameLoop } from "./GameLoop";
-import type { GardenMap } from "./GardenMap";
-import type { MovingEntity } from "./MovingEntity";
+import type { GardenMap } from "../GardenMap";
+import type { MovingEntity } from "../entities/MovingEntity";
 import type { Spawner } from "./Spawner";
-import { Zombie } from "./Zombie";
+import { Zombie } from "../zombies/Zombie";
 
 export class GameController {
   private render: () => void;

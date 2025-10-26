@@ -4,7 +4,7 @@ export class MovingEntity extends Entity {
   name = "Entity name";
   image = "";
 
-  speed = 1000;
+  speed = 1000; // seconds per cell
 
   constructor(public x: number, public y: number) {
     super(x, y);
@@ -16,7 +16,5 @@ export class MovingEntity extends Entity {
     } else {
       this.x -= 1;
     }
-
-    return this.x;
   }
 }

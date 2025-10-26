@@ -7,9 +7,8 @@ export interface LoopHandle {
 
 export class GameLoop {
   private timers = new Set<TimerId>();
-  private gameSpeed: number;
 
-  constructor(gameSpeed: number = 0) {
+  constructor(private gameSpeed: number = 0) {
     this.gameSpeed = Math.max(0, gameSpeed | 0);
   }
 
@@ -56,10 +55,14 @@ export class GameLoop {
 
     const stop = () => {
       if (!active) return;
+
       active = false;
+
       if (timerId) {
         clearTimeout(timerId);
+
         this.timers.delete(timerId);
+
         timerId = undefined;
       }
     };
