@@ -9,35 +9,51 @@ export const getRandom = (min: number, max: number) => {
 export class Spawner {
   spawnerLoop = new GameLoop();
 
-  constructor(
-    private garden: GardenMap,
-    private minSpawnInterval: number,
-    private maxSpawnInterval: number
-  ) {}
+  constructor(private garden: GardenMap) {}
 
-  spawnEntity<T extends Entity>(EntityInstance: EntityClass<T>) {
+  private spawnEntityRandomly<T extends Entity>(
+    EntityInstance: EntityClass<T>
+  ) {
     const randomY = getRandom(0, this.garden.height - 1);
 
     const entity = new EntityInstance(8, randomY);
 
-    this.garden.placeEntity(entity);
+    return entity;
+  }
+
+  private spawnEntity<T extends Entity>(
+    x: number,
+    y: number,
+    EntityInstance: EntityClass<T>
+  ) {
+    const entity = new EntityInstance(x, y);
 
     return entity;
   }
 
   spawnLoop<T extends Entity>(
     EntityInstance: EntityClass<T>,
-    startSpanwing: (entity: T) => void
+    startSpanwing: (entity: T) => [number, number] | true,
+    x?: number,
+    y?: number
   ) {
     this.spawnerLoop.loop(() => {
-      const entity = this.spawnEntity(EntityInstance);
+      const entity =
+        x !== undefined && y !== undefined
+          ? this.spawnEntity(x, y, EntityInstance)
+          : this.spawnEntityRandomly(EntityInstance);
 
-      startSpanwing(entity);
+      if (!entity) return true;
 
-      const spawnInterval = getRandom(
-        this.minSpawnInterval,
-        this.maxSpawnInterval
-      );
+      const loopData = startSpanwing(entity);
+
+      if (!Array.isArray(loopData)) {
+        return loopData;
+      }
+
+      const [minSpawnInterval, maxSpawnInterval] = loopData;
+
+      const spawnInterval = getRandom(minSpawnInterval, maxSpawnInterval);
 
       return spawnInterval;
     });
