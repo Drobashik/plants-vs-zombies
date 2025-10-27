@@ -82,9 +82,48 @@ button {
   padding: 0.5rem;
 }
 
+.entity.bullet {
+  max-width: 40px;
+  position: absolute;
+
+  transform: translate(-50%, -50%);
+}
+
+.entity.bullet.first-render {
+  left: 80%;
+}
+
+.entity.bullet.walking {
+  animation: bullet linear infinite;
+}
+
+.entity.bullet.paused {
+  animation-play-state: paused;
+}
+
+@keyframes bullet-first-render {
+  0% {
+    left: 80%;
+  }
+
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes bullet {
+  0% {
+    left: 0%;
+  }
+
+  100% {
+    left: 100%;
+  }
+}
+
 .entity.plant {
   max-width: 75px;
-  transform-origin: 50% 100%; 
+  transform-origin: 50% 100%;
 }
 
 .entity.plant.paused {
@@ -121,8 +160,8 @@ button {
 }
 
 .entity.zombie.walking {
-  --move-dur: 12s; /* час від 100% до 0% */
-  --gait-dur: 450ms; /* ритм кроку */
+  --move-dur: 12s;
+  --gait-dur: 450ms;
 
   animation: march-x var(--move-dur) linear infinite,
     gait var(--gait-dur) cubic-bezier(0.25, 0.8, 0.3, 1) infinite;

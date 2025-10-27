@@ -11,6 +11,8 @@ export class Zombie extends MovingEntity {
 
   damage = 10;
 
+  health = 100;
+
   constructor(public x: number, public y: number) {
     super(x, y);
   }

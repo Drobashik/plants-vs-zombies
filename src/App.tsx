@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { GardenMap } from "./core/GardenMap";
 import { Spawner } from "./core/engine/Spawner";
 import { GameController } from "./core/engine/GameController";
@@ -15,15 +15,11 @@ import { Peashooter } from "./core/plants/Peashooter";
 
 const garden = new GardenMap(GARDEN_WIDTH, GARDEN_HEIGHT);
 
-const zombieSpawner = new Spawner(
-  garden,
-  MIN_SPAWN_INTERVAL,
-  MAX_SPANW_INTERVAL
-);
+const spawner = new Spawner(garden);
 
 const plantMenu = new PlantMenu([Sunflower, Peashooter]);
 
-const gameController = new GameController(garden, zombieSpawner);
+const gameController = new GameController(garden, spawner);
 
 function App() {
   const [_, triggerRender] = useState(0);
@@ -33,17 +29,17 @@ function App() {
 
   const isPlaying = useRef(false);
 
-  useEffect(() => {
-    if (!isGameStarted) return;
-
-    gameController.bootstrapGame(rerender);
-  }, [isGameStarted]);
-
   const handleGameStartStop = () => {
     if (isPlaying.current) {
       gameController.moveLoop.clearLoop();
 
-      zombieSpawner.spawnerLoop.clearLoop();
+      spawner.spawnerLoop.clearLoop();
+    } else {
+      gameController.startSpanwingZombies(
+        rerender,
+        MIN_SPAWN_INTERVAL,
+        MAX_SPANW_INTERVAL
+      );
     }
 
     isPlaying.current = !isPlaying.current;
@@ -59,11 +55,13 @@ function App() {
   };
 
   const addPlant = (x: number, y: number) => {
-    const createdEntity = plantMenu.createPlant(x, y);
+    const createdPlant = plantMenu.createPlant(x, y);
 
-    if (!createdEntity) return;
+    if (!createdPlant) return;
 
-    garden.placeEntity(createdEntity);
+    garden.placeEntity(createdPlant);
+
+    gameController.startPlantShooting(rerender, createdPlant)
 
     rerender();
   };
@@ -105,9 +103,13 @@ function App() {
                 {cell.entities.map((entity) => (
                   <img
                     key={entity.id}
-                    style={entity.type !== 'plant' ? {
-                      animationDuration: `${entity.speed}ms`,
-                    } : {}}
+                    style={
+                      entity.type !== "plant"
+                        ? {
+                            animationDuration: `${entity.speed}ms`,
+                          }
+                        : {}
+                    }
                     className={`entity ${entity.type} ${
                       isGameStarted ? entity.action : "paused"
                     }`}

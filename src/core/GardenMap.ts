@@ -41,8 +41,24 @@ export class GardenMap {
     );
   }
 
-  getCellEntities(x: number, y: number) {
-    return this.cells[y][x].entities;
+  getCellEntities<T extends Entity>(x: number, y: number) {
+    return this.cells[y][x].entities as T[];
+  }
+
+  getRowEntitiesFrom(x: number, y: number) {
+    const resultEntities = [];
+
+    for (const cell of this.cells[y]) {
+      if (cell.x >= x) {
+        for (const entity of cell.entities) {
+          if (entity) {
+            resultEntities.push(entity);
+          }
+        }
+      }
+    }
+
+    return resultEntities;
   }
 
   getEntities<T extends Entity>(EntityInstance?: EntityClass<T>) {
