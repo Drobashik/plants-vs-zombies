@@ -1,17 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GardenMap } from "./core/GardenMap";
 import { Spawner } from "./core/engine/Spawner";
 import { GameController } from "./core/engine/GameController";
-import {
-  GARDEN_HEIGHT,
-  GARDEN_WIDTH,
-  MAX_SPANW_INTERVAL,
-  MIN_SPAWN_INTERVAL,
-} from "./constants";
+import { GARDEN_HEIGHT, GARDEN_WIDTH } from "./constants";
 import { PlantMenu } from "./core/PlantMenu";
 import { Sunflower } from "./core/plants/Sunflower";
 import { Peashooter } from "./core/plants/Peashooter";
+import { Zombie } from "./core/zombies/Zombie";
+import { ConeHeadZombie } from "./core/zombies/ConeHeadZombie";
+import { BucketHeadZombie } from "./core/zombies/BucketHeadZombie";
 
 const garden = new GardenMap(GARDEN_WIDTH, GARDEN_HEIGHT);
 
@@ -21,6 +19,8 @@ const plantMenu = new PlantMenu([Sunflower, Peashooter]);
 
 const gameController = new GameController(garden, spawner);
 
+let isStarted = false;
+
 function App() {
   const [_, triggerRender] = useState(0);
   const rerender = () => triggerRender((prev) => prev + 1);
@@ -29,17 +29,29 @@ function App() {
 
   const isPlaying = useRef(false);
 
+  useEffect(() => {
+    gameController.setRenderFn(rerender);
+  }, []);
+
   const handleGameStartStop = () => {
     if (isPlaying.current) {
-      gameController.moveLoop.clearLoop();
+      gameController.moveLoop.pauseAll();
 
-      spawner.spawnerLoop.clearLoop();
+      spawner.spawnerLoop.pauseAll();
     } else {
-      gameController.startSpanwingZombies(
-        rerender,
-        MIN_SPAWN_INTERVAL,
-        MAX_SPANW_INTERVAL
-      );
+      gameController.moveLoop.resumeAll();
+
+      spawner.spawnerLoop.resumeAll();
+    }
+
+    if (!isStarted) {
+      gameController.startZombieActions([
+        Zombie,
+        ConeHeadZombie,
+        BucketHeadZombie,
+      ]);
+
+      isStarted = true;
     }
 
     isPlaying.current = !isPlaying.current;
@@ -61,7 +73,7 @@ function App() {
 
     garden.placeEntity(createdPlant);
 
-    gameController.startPlantShooting(rerender, createdPlant)
+    gameController.startPlantActions(createdPlant);
 
     rerender();
   };
@@ -86,7 +98,11 @@ function App() {
 
         <div className="controls">
           <button onClick={handleGameStartStop}>
-            {isGameStarted ? "Stop Game" : "Start Game"}
+            {isGameStarted
+              ? "Pause Game"
+              : isStarted
+              ? "Resume Game"
+              : "Start Game"}
           </button>
         </div>
       </div>

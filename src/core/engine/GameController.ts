@@ -2,171 +2,71 @@ import { GameLoop } from "./GameLoop";
 import type { GardenMap } from "../GardenMap";
 import type { Spawner } from "./Spawner";
 import { Zombie } from "../zombies/Zombie";
-import { Pea } from "../plants/Pea";
 import type { Plant } from "../plants/Plant";
+import type { MovingEntity } from "../entities/MovingEntity";
+import type { Entity, EntityClass } from "../entities/Entity";
 
-export class GameController {
-  private render: () => void;
-  public moveLoop = new GameLoop();
+export class GameController<
+  T extends MovingEntity = MovingEntity,
+  B extends Entity = Entity
+> {
+  render: () => void;
+  moveLoop = new GameLoop();
 
-  constructor(private garden: GardenMap, private spawner: Spawner) {}
+  constructor(public garden: GardenMap, public spawner: Spawner) {}
 
-  private startZombieMove<T extends Zombie>(zombie: T) {
-    this.moveLoop.setSpeed(zombie.speed)
-  
-    this.moveLoop.loop(() => {
-      this.render();
-
-      const isZombieAtEdge = zombie.x === 0;
-      const isZombieDead = zombie.health <= 0;
-
-      if ((isZombieAtEdge && !zombie.isDamaging) || isZombieDead) {
-        this.garden.removeEntity(zombie);
-
-        return true;
-      }
-
-      if (!zombie.isDamaging) {
-        this.garden.removeEntity(zombie);
-        zombie.makeStep();
-        this.garden.placeEntity(zombie);
-      }
-
-      const plantEntity = this.garden
-        .getCellEntities(zombie.x, zombie.y)
-        .find((entity) => entity.type === "plant");
-
-      if (plantEntity) {
-        zombie.action = "damaging";
-        zombie.isDamaging = true;
-
-        plantEntity.takeDamage(zombie.damage);
-
-        const isPlantEntityDead = plantEntity.health <= 0;
-
-        if (isPlantEntityDead) {
-          this.garden.removeEntity(plantEntity);
-
-          zombie.action = "walking";
-          zombie.isDamaging = false;
-        }
-      } else {
-        zombie.action = "walking";
-        zombie.isDamaging = false;
-      }
-
-      return zombie.isDamaging ? zombie.damageSpeed : zombie.speed;
-    });
+  makeOneStep(entity: T, direction: "left" | "right" = "left") {
+    this.garden.removeEntity(entity);
+    entity.makeStep(direction);
+    this.garden.placeEntity(entity);
   }
 
-  private startPeaShoot<T extends Pea, E extends Plant>(pea: T, plant: E) {
-    this.moveLoop.setSpeed(0);
-    this.moveLoop.loop(() => {
-      this.render();
+  startDamaging(damagingEntity: T, vulnerableEntity: B) {
+    damagingEntity.action = "damaging";
+    damagingEntity.isDamaging = true;
 
-      const isPeaAtEdge = pea.x === this.garden.width - 1;
-
-      if (isPeaAtEdge || !plant) {
-        this.garden.removeEntity(pea);
-
-        return true;
-      }
-
-      const getCellZombie = (x: number, y: number) =>
-        this.garden
-          .getCellEntities<Zombie>(x, y)
-          .find((entity) => entity.type === "zombie");
-
-      const zombie =
-        getCellZombie(pea.x, pea.y) || getCellZombie(pea.x + 1, pea.y);
-
-      if (zombie) {
-        pea.action = "damaging";
-        pea.isDamaging = true;
-
-        zombie.takeDamage(pea.damage);
-
-        this.garden.removeEntity(pea);
-
-        const isZombieDead = zombie.health <= 0;
-
-        if (isZombieDead) {
-          this.garden.removeEntity(zombie);
-
-          pea.action = "walking";
-          pea.isDamaging = false;
-        }
-        return true;
-      } else {
-        pea.action = "walking";
-        pea.isDamaging = false;
-      }
-
-      if (!pea.isDamaging) {
-        this.garden.removeEntity(pea);
-        pea.makeStep("right");
-        this.garden.placeEntity(pea);
-      }
-
-      return pea.speed;
-    });
+    vulnerableEntity.takeDamage(damagingEntity.damage);
   }
 
-  startPlantShooting<T extends Plant>(render: () => void, createdPlant: T) {
-    this.render = render;
-
-    if (createdPlant.plantType !== "shooter") return;
-
-    this.spawner.spawnLoop<Pea>(
-      Pea,
-      (pea) => {
-        this.render();
-
-        const plant = this.garden
-          .getCellEntities<Plant>(createdPlant.x, createdPlant.y)
-          .find((entity) => entity.id === createdPlant.id)!;
-
-        const zombieInRow = this.garden
-          .getRowEntitiesFrom(plant.x, plant.y)
-          .find((entity) => entity instanceof Zombie);
-
-        if (!plant) {
-          return true;
-        }
-
-        if (zombieInRow) {
-          this.garden.placeEntity(pea);
-          this.startPeaShoot(pea, plant);
-        }
-
-        return [plant.damageSpeed, plant.damageSpeed];
-      },
-      createdPlant.x,
-      createdPlant.y
-    );
+  continueWalking(entity: T) {
+    entity.action = "walking";
+    entity.isDamaging = false;
   }
 
-  startSpanwingZombies(
-    render: () => void,
-    minSpawnInterval: number,
-    maxSpawnInterval: number
-  ) {
-    this.render = render;
+  setRenderFn(renderFn: () => void) {
+    this.render = renderFn;
+  }
 
-    const zombies = this.garden.getEntities(Zombie);
+  startPlantActions<P extends Plant>(plant: P) {
+    if (plant?.behavior) plant.behavior.start(this);
+
+    if (plant.projection?.behavior)
+      plant.projection.behavior.start(this, plant.projection, plant);
+  }
+
+  startZombieActions<T extends Zombie>(Zombies: EntityClass<T>[]) {
+    const zombies = this.garden.getEntities(Zombies);
 
     for (const zombie of zombies) {
-      this.startZombieMove(zombie);
+      zombie.behavior.start(this, zombie);
     }
 
-    this.spawner.spawnLoop<Zombie>(Zombie, (zombie) => {
-      this.render();
+    Zombies.forEach((Zombie, index) => {
+      let isFirstSkipped = index === 0;
 
-      this.garden.placeEntity(zombie);
+      this.spawner.spawnLoop<Zombie>(Zombie, (zombie) => {
+        if (!isFirstSkipped) {
+          isFirstSkipped = true;
 
-      this.startZombieMove(zombie);
+          return [zombie.minSpawnInterval, zombie.maxSpawnInterval];
+        }
 
-      return [minSpawnInterval, maxSpawnInterval];
+        this.render();
+        this.garden.placeEntity(zombie);
+        zombie.behavior.start(this, zombie);
+
+        return [zombie.minSpawnInterval, zombie.maxSpawnInterval];
+      });
     });
   }
 }

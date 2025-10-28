@@ -6,10 +6,6 @@ export class MovingEntity extends Entity {
   name = "Entity name";
   image = "";
 
-  isDamaging = false;
-
-  damage = 1;
-
   speed = 1000; // seconds per cell
   damageSpeed = 1000;
 

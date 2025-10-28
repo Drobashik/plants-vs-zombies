@@ -1,3 +1,5 @@
+import type { EntityBehavior } from "../behaviors/EntityBehavior";
+
 export type EntityClass<T> = new (x: number, y: number) => T;
 
 export class Entity {
@@ -7,7 +9,12 @@ export class Entity {
   name = "entity";
   image = "";
 
-  action = "paused";
+  action = "walking";
+
+  behavior: EntityBehavior;
+
+  isDamaging = false;
+  damage = 1;
 
   health = 0;
 
