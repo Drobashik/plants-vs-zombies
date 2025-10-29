@@ -61,7 +61,7 @@ export class GardenMap {
     return resultEntities;
   }
 
-  getEntities<T extends Entity>(EntityInstance?: EntityClass<T>) {
+  getEntities<T extends Entity>(EntityInstances: EntityClass<T>[]) {
     const resultEntities: T[] = [];
 
     for (const innerCells of this.cells) {
@@ -69,8 +69,10 @@ export class GardenMap {
         const { entities } = cell;
 
         for (const entity of entities) {
-          if (entity && EntityInstance && entity instanceof EntityInstance) {
-            resultEntities.push(entity);
+          for (const EntityInstance of EntityInstances) {
+            if (entity && EntityInstance && entity instanceof EntityInstance) {
+              resultEntities.push(entity);
+            }
           }
         }
       }
