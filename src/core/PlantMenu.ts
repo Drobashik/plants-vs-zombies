@@ -8,7 +8,7 @@ type PlantTool<T> = {
   plant: T;
 };
 
-export class PlantMenu<T extends Plant> {
+export class PlantMenu<T extends Plant = Plant> {
   plantTools: PlantTool<T>[] = [];
 
   selectedPlant: PlantTool<T> | null = null;

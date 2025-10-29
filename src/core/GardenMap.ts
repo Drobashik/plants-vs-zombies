@@ -1,6 +1,6 @@
 import type { Entity, EntityClass } from "./entities/Entity";
 
-type Cell = {
+export type Cell = {
   x: number;
   y: number;
   entities: Entity[];

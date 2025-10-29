@@ -11,7 +11,11 @@ export class Entity {
 
   action = "walking";
 
+  isHurt = false;
+
   behavior: EntityBehavior;
+
+  isRecentlyAppeared = false;
 
   isDamaging = false;
   damage = 1;

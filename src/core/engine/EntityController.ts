@@ -3,19 +3,37 @@ import type { GardenMap } from "../GardenMap";
 import type { Spawner } from "./Spawner";
 import { Zombie } from "../zombies/Zombie";
 import type { Plant } from "../plants/Plant";
-import type { MovingEntity } from "../entities/MovingEntity";
 import type { Entity, EntityClass } from "../entities/Entity";
+import type { MovingEntity } from "../entities/MovingEntity";
 
-export class GameController<
-  T extends MovingEntity = MovingEntity,
+export class EntityController<
+  T extends Entity = Entity,
   B extends Entity = Entity
 > {
   render: () => void;
+
   moveLoop = new GameLoop();
 
   constructor(public garden: GardenMap, public spawner: Spawner) {}
 
-  makeOneStep(entity: T, direction: "left" | "right" = "left") {
+  setRenderFn(renderFn?: () => void) {
+    const emtpyFn = () => {};
+
+    this.render = renderFn || emtpyFn;
+  }
+
+  hurtEntity(entity: B, hurtTime = 50) {
+    entity.isHurt = true;
+
+    setTimeout(() => {
+      entity.isHurt = false;
+    }, hurtTime);
+  }
+
+  makeOneStep<T extends MovingEntity>(
+    entity: T,
+    direction: "left" | "right" = "left"
+  ) {
     this.garden.removeEntity(entity);
     entity.makeStep(direction);
     this.garden.placeEntity(entity);
@@ -33,10 +51,6 @@ export class GameController<
     entity.isDamaging = false;
   }
 
-  setRenderFn(renderFn: () => void) {
-    this.render = renderFn;
-  }
-
   startPlantActions<P extends Plant>(plant: P) {
     if (plant?.behavior) plant.behavior.start(this);
 
@@ -45,12 +59,6 @@ export class GameController<
   }
 
   startZombieActions<T extends Zombie>(Zombies: EntityClass<T>[]) {
-    const zombies = this.garden.getEntities(Zombies);
-
-    for (const zombie of zombies) {
-      zombie.behavior.start(this, zombie);
-    }
-
     Zombies.forEach((Zombie, index) => {
       let isFirstSkipped = index === 0;
 
