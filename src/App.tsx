@@ -1,88 +1,37 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useRef, useState } from "react";
-import { GardenMap } from "./core/GardenMap";
-import { Spawner } from "./core/engine/Spawner";
-import { GameController } from "./core/engine/GameController";
-import { GARDEN_HEIGHT, GARDEN_WIDTH } from "./constants";
-import { PlantMenu } from "./core/PlantMenu";
-import { Sunflower } from "./core/plants/Sunflower";
-import { Peashooter } from "./core/plants/Peashooter";
-import { Zombie } from "./core/zombies/Zombie";
-import { ConeHeadZombie } from "./core/zombies/ConeHeadZombie";
-import { BucketHeadZombie } from "./core/zombies/BucketHeadZombie";
+import { useEffect, useState } from "react";
+import type { Cell } from "./core/GardenMap";
+import { GameManager } from "./core/GameManager";
 
-const garden = new GardenMap(GARDEN_WIDTH, GARDEN_HEIGHT);
-
-const spawner = new Spawner(garden);
-
-const plantMenu = new PlantMenu([Sunflower, Peashooter]);
-
-const gameController = new GameController(garden, spawner);
-
-let isStarted = false;
+const manager = new GameManager();
 
 function App() {
   const [_, triggerRender] = useState(0);
   const rerender = () => triggerRender((prev) => prev + 1);
 
-  const [isGameStarted, setGameStarted] = useState(false);
-
-  const isPlaying = useRef(false);
-
   useEffect(() => {
-    gameController.setRenderFn(rerender);
+    manager.setRenderFn(rerender);
+    manager.controller.setRenderFn(rerender);
   }, []);
 
   const handleGameStartStop = () => {
-    if (isPlaying.current) {
-      gameController.moveLoop.pauseAll();
-
-      spawner.spawnerLoop.pauseAll();
-    } else {
-      gameController.moveLoop.resumeAll();
-
-      spawner.spawnerLoop.resumeAll();
-    }
-
-    if (!isStarted) {
-      gameController.startZombieActions([
-        Zombie,
-        ConeHeadZombie,
-        BucketHeadZombie,
-      ]);
-
-      isStarted = true;
-    }
-
-    isPlaying.current = !isPlaying.current;
-    setGameStarted((prev) => !prev);
+    manager.resumeOrPauseGame();
+    manager.startGame();
   };
 
   const togglePlant = (plantName: string) => {
-    const plantTool = plantMenu.getPlantTool(plantName);
-
-    plantMenu.togglePlantSelection(plantName, !plantTool?.selected);
-
-    rerender();
+    manager.togglePlant(plantName);
   };
 
-  const addPlant = (x: number, y: number) => {
-    const createdPlant = plantMenu.createPlant(x, y);
-
-    if (!createdPlant) return;
-
-    garden.placeEntity(createdPlant);
-
-    gameController.startPlantActions(createdPlant);
-
-    rerender();
+  const addPlant = (cell: Cell) => {
+    manager.addPlant(cell);
   };
 
   return (
     <div className="container">
       <div className="head-panel">
         <div className="tool-menu">
-          {plantMenu.plantTools.map((plantTool) => (
+          {manager.plantMenu.plantTools.map((plantTool) => (
             <div
               key={plantTool.plant.name}
               className={`tool-plant ${plantTool.selected ? "selected" : ""}`}
@@ -98,9 +47,9 @@ function App() {
 
         <div className="controls">
           <button onClick={handleGameStartStop}>
-            {isGameStarted
+            {manager.isGamePlaying
               ? "Pause Game"
-              : isStarted
+              : manager.isGameStarted
               ? "Resume Game"
               : "Start Game"}
           </button>
@@ -108,14 +57,10 @@ function App() {
       </div>
 
       <div className="map">
-        {garden.cells.map((row, index) => (
+        {manager.garden.cells.map((row, index) => (
           <div className="row" key={index}>
             {row.map((cell, index) => (
-              <div
-                className="cell"
-                key={index}
-                onClick={() => addPlant(cell.x, cell.y)}
-              >
+              <div className="cell" key={index} onClick={() => addPlant(cell)}>
                 {cell.entities.map((entity) => (
                   <img
                     key={entity.id}
@@ -127,8 +72,8 @@ function App() {
                         : {}
                     }
                     className={`entity ${entity.type} ${
-                      isGameStarted ? entity.action : "paused"
-                    }`}
+                      manager.isGamePlaying ? entity.action : "paused"
+                    } ${entity.isHurt ? "hurting" : ""} ${entity.isRecentlyAppeared ? 'first-appear' : ''}`}
                     src={entity.image}
                     data-id={entity.id}
                     alt={entity.name}

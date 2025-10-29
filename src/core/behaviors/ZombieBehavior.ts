@@ -1,10 +1,10 @@
-import type { GameController } from "../engine/GameController";
+import type { EntityController } from "../engine/EntityController";
 import type { Plant } from "../plants/Plant";
 import { Zombie } from "../zombies/Zombie";
 import type { EntityBehavior } from "./EntityBehavior";
 
 export class ZombieBehavior implements EntityBehavior {
-  start(controller: GameController, zombie: Zombie): void {
+  start(controller: EntityController, zombie: Zombie): void {
     const {
       moveLoop,
       garden,
@@ -12,6 +12,7 @@ export class ZombieBehavior implements EntityBehavior {
       startDamaging,
       continueWalking,
       render,
+      hurtEntity,
     } = controller;
 
     moveLoop.setSpeed(zombie.speed);
@@ -38,6 +39,8 @@ export class ZombieBehavior implements EntityBehavior {
 
       if (plantEntity) {
         startDamaging(zombie, plantEntity);
+
+        hurtEntity(plantEntity, zombie.damageSpeed / 2);
 
         const isPlantEntityDead = plantEntity.health <= 0;
 

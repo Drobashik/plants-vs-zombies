@@ -1,13 +1,14 @@
 import { Zombie } from "./Zombie";
 import bucketHeadZombieImage from "../../images/bucketHeadZombie.webp";
+import zombieImage from "../../images/zombie.webp";
 
 export class BucketHeadZombie extends Zombie {
   image = bucketHeadZombieImage;
 
-  health = 400;
+  health = 500;
 
-  minSpawnInterval = 30000;
-  maxSpawnInterval = 50000;
+  minSpawnInterval = 50000;
+  maxSpawnInterval = 70000;
 
   constructor(x: number, y: number) {
     super(x, y);
@@ -15,5 +16,9 @@ export class BucketHeadZombie extends Zombie {
 
   takeDamage(damage: number): void {
     super.takeDamage(damage);
+
+    if (this.health < 100) {
+      this.image = zombieImage;
+    }
   }
 }

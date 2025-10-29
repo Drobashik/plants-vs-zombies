@@ -14,8 +14,8 @@ export class Zombie extends MovingEntity {
 
   health = 100;
 
-  minSpawnInterval = 7500;
-  maxSpawnInterval = 15000;
+  minSpawnInterval = 6000;
+  maxSpawnInterval = 12000;
 
   behavior = new ZombieBehavior();
 

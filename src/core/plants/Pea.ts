@@ -14,6 +14,8 @@ export class Pea extends MovingEntity {
 
   damage = 30;
 
+  damageSpeed = 50;
+
   health = 1;
 
   action: MovingEntityAction = "walking";

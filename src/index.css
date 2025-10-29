@@ -76,7 +76,7 @@ button {
   padding: 0 2rem;
 
   font-size: 1.5rem;
-  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
 }
 
 .entity {
@@ -95,8 +95,10 @@ button {
   animation: bullet linear infinite;
 }
 
-.entity.bullet.first-render {
+.entity.bullet.first-appear {
   left: 80%;
+
+  animation: bullet-first-render linear infinite;
 }
 
 @keyframes bullet-first-render {
@@ -130,6 +132,21 @@ button {
   animation: plant-sway var(--sway-dur) ease-in-out infinite;
 }
 
+.entity.plant.walking.hurting {
+  animation: plant-sway var(--sway-dur) ease-in-out infinite,
+    plant-hurting 1000ms linear infinite;
+}
+
+@keyframes plant-hurting {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 0.6;
+  }
+}
+
 @keyframes plant-sway {
   0%,
   100% {
@@ -161,6 +178,12 @@ button {
     gait var(--gait-dur) cubic-bezier(0.25, 0.8, 0.3, 1) infinite;
 }
 
+.entity.zombie.walking.hurting {
+  animation: march-x var(--move-dur) linear infinite,
+    gait var(--gait-dur) cubic-bezier(0.25, 0.8, 0.3, 1) infinite,
+    hurting 50ms linear infinite;
+}
+
 .paused {
   animation-play-state: paused !important;
 }
@@ -172,6 +195,21 @@ button {
   --tint: 1;
 
   animation: damage var(--damage-dur) cubic-bezier(0.3, 0.7, 0.4, 0.9) infinite;
+}
+
+.entity.zombie.damaging.hurting {
+  animation: damage var(--damage-dur) cubic-bezier(0.3, 0.7, 0.4, 0.9) infinite,
+    hurting 50ms linear infinite;
+}
+
+@keyframes hurting {
+  0%,
+  5% {
+    opacity: 1;
+  }
+  2.5% {
+    opacity: 0.6;
+  }
 }
 
 @keyframes march-x {
