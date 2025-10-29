@@ -122,7 +122,7 @@ function App() {
                     style={
                       entity.type !== "plant"
                         ? {
-                            animationDuration: `${entity.speed}ms`,
+                            animationDuration: `${entity.speed + 1}ms`,
                           }
                         : {}
                     }
