@@ -4,54 +4,62 @@ import { Zombie } from "../zombies/Zombie";
 import type { EntityBehavior } from "./EntityBehavior";
 
 export class ZombieBehavior implements EntityBehavior {
+  private controller: EntityController;
+
+  private zombieMeetsPlant(zombie: Zombie) {
+    const plantEntity = this.controller.garden
+      .getCellEntities<Plant>(zombie.x, zombie.y)
+      .find((entity) => entity.type === "plant");
+
+    if (plantEntity) {
+      this.controller.startDamaging(zombie, plantEntity);
+
+      this.controller.hurtEntity(plantEntity, zombie.damageSpeed / 2);
+
+      const isPlantEntityDead = plantEntity.health <= 0;
+
+      if (isPlantEntityDead) {
+        this.controller.garden.removeEntity(plantEntity);
+
+        this.controller.continueWalking(zombie);
+      }
+    } else {
+      this.controller.continueWalking(zombie);
+    }
+  }
+
   start(controller: EntityController, zombie: Zombie): void {
-    const {
-      moveLoop,
-      garden,
-      makeOneStep,
-      startDamaging,
-      continueWalking,
-      render,
-      hurtEntity,
-    } = controller;
+    const { moveLoop, garden } = controller;
+    this.controller = controller;
 
     moveLoop.setSpeed(zombie.speed);
 
-    moveLoop.loop(() => {
-      render();
+    this.zombieMeetsPlant(zombie);
 
-      const isZombieAtEdge = zombie.x === 0;
+    moveLoop.loop(() => {
+      controller.gameLifecycle.onTick();
+
       const isZombieDead = zombie.health <= 0;
 
-      if ((isZombieAtEdge && !zombie.isDamaging) || isZombieDead) {
+      if (isZombieDead) {
         garden.removeEntity(zombie);
 
         return true;
       }
 
+      const isZombieAtEdge = zombie.x === 0;
+
+      if (isZombieAtEdge && !zombie.isDamaging) {
+        controller.triggerGameOver("lose");
+
+        return true;
+      }
+
       if (!zombie.isDamaging) {
-        makeOneStep.call(controller, zombie);
+        controller.makeOneStep(zombie);
       }
 
-      const plantEntity = garden
-        .getCellEntities<Plant>(zombie.x, zombie.y)
-        .find((entity) => entity.type === "plant");
-
-      if (plantEntity) {
-        startDamaging(zombie, plantEntity);
-
-        hurtEntity(plantEntity, zombie.damageSpeed / 2);
-
-        const isPlantEntityDead = plantEntity.health <= 0;
-
-        if (isPlantEntityDead) {
-          garden.removeEntity(plantEntity);
-
-          continueWalking(zombie);
-        }
-      } else {
-        continueWalking(zombie);
-      }
+      this.zombieMeetsPlant(zombie);
 
       return zombie.isDamaging ? zombie.damageSpeed : zombie.speed;
     });

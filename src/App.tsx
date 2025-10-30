@@ -1,9 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Cell } from "./core/GardenMap";
 import { GameManager } from "./core/GameManager";
+import flagImage from "./images/flag.webp";
 
 const manager = new GameManager();
+
+const buttonLabel = {
+  idle: false,
+  play: "Pause Game",
+  pause: "Resume Game",
+  win: "Start again",
+  lose: "Start again",
+};
 
 function App() {
   const [_, triggerRender] = useState(0);
@@ -11,12 +20,10 @@ function App() {
 
   useEffect(() => {
     manager.setRenderFn(rerender);
-    manager.controller.setRenderFn(rerender);
   }, []);
 
   const handleGameStartStop = () => {
     manager.resumeOrPauseGame();
-    manager.startGame();
   };
 
   const togglePlant = (plantName: string) => {
@@ -27,9 +34,47 @@ function App() {
     manager.addPlant(cell);
   };
 
+  const progressionLevel = useMemo(
+    () => manager.levelDirector.gameCompletion,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [manager.levelDirector.gameCompletion]
+  );
+
   return (
     <div className="container">
       <div className="head-panel">
+        <div className="controls">
+          {buttonLabel[manager.gameState] && (
+            <button onClick={handleGameStartStop}>
+              {buttonLabel[manager.gameState]}
+            </button>
+          )}
+        </div>
+
+        {buttonLabel[manager.gameState] && (
+          <div className="level-progression">
+            <div className="flag-container">
+              {Array.from({ length: manager.levelDirector.flags }).map(
+                (_, index) => (
+                  <img
+                    className="flag"
+                    src={flagImage}
+                    alt="Flag"
+                    key={index}
+                  />
+                )
+              )}
+              <div className="flag"></div>
+            </div>
+            <div
+              className="progression"
+              style={{ width: `${progressionLevel}%` }}
+            ></div>
+          </div>
+        )}
+      </div>
+
+      <div className="game-container">
         <div className="tool-menu">
           {manager.plantMenu.plantTools.map((plantTool) => (
             <div
@@ -45,44 +90,36 @@ function App() {
           ))}
         </div>
 
-        <div className="controls">
-          <button onClick={handleGameStartStop}>
-            {manager.isGamePlaying
-              ? "Pause Game"
-              : manager.isGameStarted
-              ? "Resume Game"
-              : "Start Game"}
-          </button>
+        <div className="map">
+          {manager.garden.cells.map((row, index) => (
+            <div className="row" key={index}>
+              {row.map((cell, index) => (
+                <div
+                  className="cell"
+                  key={index}
+                  onClick={() => addPlant(cell)}
+                >
+                  {cell.entities.map((entity) => (
+                    <img
+                      key={entity.id}
+                      style={{
+                        animationDuration: `${entity.speed + 1}ms`,
+                      }}
+                      className={`entity ${entity.type} ${
+                        manager.gameState === "play" ? entity.action : "paused"
+                      } ${entity.isHurt ? "hurting" : ""} ${
+                        entity.isRecentlyAppeared ? "first-appear" : ""
+                      }`}
+                      src={entity.image}
+                      data-id={entity.id}
+                      alt={entity.name}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
-      </div>
-
-      <div className="map">
-        {manager.garden.cells.map((row, index) => (
-          <div className="row" key={index}>
-            {row.map((cell, index) => (
-              <div className="cell" key={index} onClick={() => addPlant(cell)}>
-                {cell.entities.map((entity) => (
-                  <img
-                    key={entity.id}
-                    style={
-                      entity.type !== "plant"
-                        ? {
-                            animationDuration: `${entity.speed + 1}ms`,
-                          }
-                        : {}
-                    }
-                    className={`entity ${entity.type} ${
-                      manager.isGamePlaying ? entity.action : "paused"
-                    } ${entity.isHurt ? "hurting" : ""} ${entity.isRecentlyAppeared ? 'first-appear' : ''}`}
-                    src={entity.image}
-                    data-id={entity.id}
-                    alt={entity.name}
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
-        ))}
       </div>
     </div>
   );

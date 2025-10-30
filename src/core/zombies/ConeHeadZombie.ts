@@ -5,10 +5,10 @@ import zombieImage from "../../images/zombie.webp";
 export class ConeHeadZombie extends Zombie {
   image = coneHeadZombieImage;
 
-  health = 250;
+  health = 200;
 
-  minSpawnInterval = 15000;
-  maxSpawnInterval = 30000;
+  minSpawnInterval = 0;
+  maxSpawnInterval = 50000;
 
   constructor(x: number, y: number) {
     super(x, y);

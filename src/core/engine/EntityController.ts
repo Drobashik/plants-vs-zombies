@@ -6,20 +6,28 @@ import type { Plant } from "../plants/Plant";
 import type { Entity, EntityClass } from "../entities/Entity";
 import type { MovingEntity } from "../entities/MovingEntity";
 
+export type GameLyfecycle = {
+  onGameOver: (outcome: "win" | "lose") => void;
+  onTick: () => void;
+};
+
 export class EntityController<
   T extends Entity = Entity,
   B extends Entity = Entity
 > {
-  render: () => void;
-
   moveLoop = new GameLoop();
 
-  constructor(public garden: GardenMap, public spawner: Spawner) {}
+  constructor(
+    public garden: GardenMap,
+    public spawner: Spawner,
+    public gameLifecycle: GameLyfecycle
+  ) {}
 
-  setRenderFn(renderFn?: () => void) {
-    const emtpyFn = () => {};
+  triggerGameOver(outcome: "win" | "lose") {
+    this.moveLoop.stopAll();
+    this.spawner.spawnerLoop.stopAll();
 
-    this.render = renderFn || emtpyFn;
+    this.gameLifecycle.onGameOver(outcome);
   }
 
   hurtEntity(entity: B, hurtTime = 50) {
@@ -69,7 +77,7 @@ export class EntityController<
           return [zombie.minSpawnInterval, zombie.maxSpawnInterval];
         }
 
-        this.render();
+        this.gameLifecycle.onTick();
         this.garden.placeEntity(zombie);
         zombie.behavior.start(this, zombie);
 

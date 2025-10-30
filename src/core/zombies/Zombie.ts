@@ -14,13 +14,17 @@ export class Zombie extends MovingEntity {
 
   health = 100;
 
-  minSpawnInterval = 6000;
-  maxSpawnInterval = 12000;
+  minSpawnInterval = 0;
+  maxSpawnInterval = 15000;
 
   behavior = new ZombieBehavior();
 
   constructor(public x: number, public y: number) {
     super(x, y);
+  }
+
+  changeZombieDifficulty(difficulty: number) {
+    this.maxSpawnInterval = Math.max(this.minSpawnInterval, this.maxSpawnInterval - difficulty);
   }
 
   makeStep() {

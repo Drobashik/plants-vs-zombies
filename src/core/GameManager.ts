@@ -3,6 +3,7 @@ import { EntityController } from "./engine/EntityController";
 import { Spawner } from "./engine/Spawner";
 import type { EntityClass } from "./entities/Entity";
 import { GardenMap, type Cell } from "./GardenMap";
+import { LevelDirector } from "./LevelDirector";
 import { PlantMenu } from "./PlantMenu";
 import { Peashooter } from "./plants/Peashooter";
 import { Sunflower } from "./plants/Sunflower";
@@ -21,9 +22,9 @@ export class GameManager {
 
   ZombiesInCurrentGame: EntityClass<Zombie>[];
 
-  isGameStarted = false;
+  gameState: "idle" | "play" | "pause" | "win" | "lose" = "idle";
 
-  isGamePlaying = false;
+  levelDirector: LevelDirector;
 
   render: () => void;
 
@@ -33,7 +34,25 @@ export class GameManager {
 
     this.garden = new GardenMap(GARDEN_WIDTH, GARDEN_HEIGHT);
     this.spawner = new Spawner(this.garden);
-    this.controller = new EntityController(this.garden, this.spawner);
+
+    this.levelDirector = new LevelDirector(1, {
+      onTick: () => {
+        this.render();
+      },
+      onGameOver: () => {
+        this.controller.triggerGameOver("win");
+      },
+    });
+
+    this.controller = new EntityController(this.garden, this.spawner, {
+      onTick: () => {
+        this.render();
+      },
+      onGameOver: () => {
+        this.levelDirector.stopLevel();
+        this.endGame("lose");
+      },
+    });
   }
 
   setRenderFn(renderFn?: () => void) {
@@ -43,27 +62,47 @@ export class GameManager {
   }
 
   startGame() {
-    if (!this.isGameStarted) {
-      this.controller.startZombieActions(this.ZombiesInCurrentGame);
+    if (this.gameState === "idle") {
+      this.levelDirector.startLevel(() => {
+        this.controller.startZombieActions(this.ZombiesInCurrentGame);
+      }, 15000);
 
-      this.isGameStarted = true;
+      this.gameState = "play";
 
       this.render();
     }
   }
 
+  endGame(outcome: "win" | "lose") {
+    this.gameState = outcome;
+
+    this.render();
+  }
+
   resumeOrPauseGame() {
-    if (this.isGamePlaying) {
-      this.controller.moveLoop.pauseAll();
+    if (this.gameState === "lose") {
+      this.gameState = "idle";
 
-      this.spawner.spawnerLoop.pauseAll();
-    } else {
-      this.controller.moveLoop.resumeAll();
+      this.garden.removeAllEntities();
 
-      this.spawner.spawnerLoop.resumeAll();
+      this.startGame();
+
+      return;
     }
 
-    this.isGamePlaying = !this.isGamePlaying;
+    if (this.gameState === "play") {
+      this.controller.moveLoop.pauseAll();
+      this.levelDirector.pauseLevel();
+      this.spawner.spawnerLoop.pauseAll();
+
+      this.gameState = "pause";
+    } else {
+      this.controller.moveLoop.resumeAll();
+      this.levelDirector.resumeLevel();
+      this.spawner.spawnerLoop.resumeAll();
+
+      this.gameState = "play";
+    }
 
     this.render();
   }
@@ -82,6 +121,8 @@ export class GameManager {
     this.garden.placeEntity(createdPlant);
 
     this.controller.startPlantActions(createdPlant);
+
+    this.startGame();
 
     this.render();
   }
