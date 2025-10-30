@@ -1,8 +1,9 @@
 import type { EntityController } from "../engine/EntityController";
-import { Pea } from "../plants/Pea";
+import { Pea } from "../bullets/Pea";
 import type { Plant } from "../plants/Plant";
 import { Zombie } from "../zombies/Zombie";
 import type { EntityBehavior } from "./EntityBehavior";
+import type { Peashooter } from "../plants/Peashooter";
 
 export class PeaBehavior implements EntityBehavior {
   protected moveToTarget(
@@ -67,7 +68,7 @@ export class PeaBehavior implements EntityBehavior {
     });
   }
 
-  start(controller: EntityController, createdPlant: Plant): void {
+  start(controller: EntityController, createdPeashooter: Peashooter): void {
     const { spawner, garden, gameLifecycle } = controller;
 
     spawner.spawnLoop<Pea>(
@@ -75,28 +76,28 @@ export class PeaBehavior implements EntityBehavior {
       (pea) => {
         gameLifecycle.onTick();
 
-        const plant = garden
-          .getCellEntities<Plant>(createdPlant.x, createdPlant.y)
-          .find((entity) => entity.id === createdPlant.id)!;
+        const peashooter = garden
+          .getCellEntities<Peashooter>(createdPeashooter.x, createdPeashooter.y)
+          .find((entity) => entity.id === createdPeashooter.id)!;
 
-        if (!plant) {
+        if (!peashooter) {
           return true;
         }
 
         const zombieInRow = garden
-          .getRowEntitiesFrom(plant.x, plant.y)
+          .getRowEntitiesFrom(peashooter.x, peashooter.y)
           .find((entity) => entity instanceof Zombie);
 
         if (zombieInRow) {
           pea.isRecentlyAppeared = true;
           garden.placeEntity(pea);
-          this.moveToTarget(controller, pea, plant);
+          this.moveToTarget(controller, pea, peashooter);
         }
 
-        return [plant.damageSpeed, plant.damageSpeed];
+        return [peashooter.reloadSpeed, peashooter.reloadSpeed];
       },
-      createdPlant.x,
-      createdPlant.y
+      createdPeashooter.x,
+      createdPeashooter.y
     );
   }
 }

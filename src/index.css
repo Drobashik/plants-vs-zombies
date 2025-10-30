@@ -138,11 +138,17 @@ button {
 }
 
 .entity {
+  position: absolute;
   width: 100%;
-  position: relative;
   z-index: 99;
 
   padding: 0.5rem;
+}
+
+.entity.profit {
+  transform: translate(10%, -45%);
+
+  z-index: 1000;
 }
 
 .entity.bullet {
@@ -223,7 +229,6 @@ button {
 }
 
 .entity.zombie {
-  position: absolute;
   left: 100%;
   transform: translate(-50%, -15%);
   transform-origin: 50% 100%;

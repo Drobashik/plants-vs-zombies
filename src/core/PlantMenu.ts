@@ -1,7 +1,6 @@
 import type { EntityClass } from "./entities/Entity";
 import { Plant } from "./plants/Plant";
 
-
 type PlantTool<T> = {
   Instance: EntityClass<T>;
   selected: boolean;
@@ -10,6 +9,8 @@ type PlantTool<T> = {
 
 export class PlantMenu<T extends Plant = Plant> {
   plantTools: PlantTool<T>[] = [];
+
+  budget = 50;
 
   selectedPlant: PlantTool<T> | null = null;
 
