@@ -7,8 +7,8 @@ export class BucketHeadZombie extends Zombie {
 
   health = 500;
 
-  minSpawnInterval = 50000;
-  maxSpawnInterval = 70000;
+  minSpawnInterval = 15000;
+  maxSpawnInterval = 100000;
 
   constructor(x: number, y: number) {
     super(x, y);

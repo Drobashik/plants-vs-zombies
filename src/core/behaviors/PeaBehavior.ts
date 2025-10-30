@@ -5,20 +5,12 @@ import { Zombie } from "../zombies/Zombie";
 import type { EntityBehavior } from "./EntityBehavior";
 
 export class PeaBehavior implements EntityBehavior {
-  private moveToTarget(
+  protected moveToTarget(
     controller: EntityController,
     pea: Pea,
     plant: Plant
   ): void {
-    const {
-      moveLoop,
-      render,
-      garden,
-      startDamaging,
-      continueWalking,
-      makeOneStep,
-      hurtEntity,
-    } = controller;
+    const { moveLoop, garden } = controller;
 
     const peaSpeed = pea.speed;
 
@@ -27,17 +19,7 @@ export class PeaBehavior implements EntityBehavior {
     moveLoop.setSpeed(pea.speed);
 
     moveLoop.loop(() => {
-      render();
-
-      const isPeaAtEdge = pea.x === garden.width - 1;
-
-      if (isPeaAtEdge || !plant) {
-        garden.removeEntity(pea);
-
-        return true;
-      }
-
-      console.log(pea.isRecentlyAppeared);
+      controller.gameLifecycle.onTick();
 
       const getCellZombie = (x: number, y: number) =>
         garden
@@ -48,9 +30,9 @@ export class PeaBehavior implements EntityBehavior {
         getCellZombie(pea.x, pea.y) || getCellZombie(pea.x + 1, pea.y);
 
       if (zombie) {
-        startDamaging(pea, zombie);
+        controller.startDamaging(pea, zombie);
 
-        hurtEntity(zombie, pea.damageSpeed);
+        controller.hurtEntity(zombie, pea.damageSpeed);
 
         garden.removeEntity(pea);
 
@@ -62,11 +44,19 @@ export class PeaBehavior implements EntityBehavior {
 
         return true;
       } else {
-        continueWalking.call(controller, pea);
+        controller.continueWalking(pea);
+      }
+
+      const isPeaAtEdge = pea.x === garden.width - 1;
+
+      if (isPeaAtEdge || !plant) {
+        garden.removeEntity(pea);
+
+        return true;
       }
 
       if (!pea.isDamaging) {
-        makeOneStep.call(controller, pea, "right");
+        controller.makeOneStep(pea, "right");
 
         pea.speed = peaSpeed;
 
@@ -78,12 +68,12 @@ export class PeaBehavior implements EntityBehavior {
   }
 
   start(controller: EntityController, createdPlant: Plant): void {
-    const { spawner, render, garden } = controller;
+    const { spawner, garden, gameLifecycle } = controller;
 
     spawner.spawnLoop<Pea>(
       Pea,
       (pea) => {
-        render();
+        gameLifecycle.onTick();
 
         const plant = garden
           .getCellEntities<Plant>(createdPlant.x, createdPlant.y)

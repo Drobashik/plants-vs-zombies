@@ -12,7 +12,7 @@ export class Pea extends MovingEntity {
 
   type = "bullet";
 
-  damage = 30;
+  damage = 10;
 
   damageSpeed = 50;
 

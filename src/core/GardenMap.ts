@@ -41,8 +41,16 @@ export class GardenMap {
     );
   }
 
+  removeAllEntities() {
+    this.cells = [];
+
+    this.createMap();
+  }
+
   getCellEntities<T extends Entity>(x: number, y: number) {
-    return this.cells[y][x].entities as T[];
+    const entities = this.cells[y][x]?.entities || [];
+
+    return entities as T[];
   }
 
   getRowEntitiesFrom(x: number, y: number) {

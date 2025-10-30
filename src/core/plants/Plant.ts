@@ -10,6 +10,8 @@ export class Plant extends Entity {
 
   health = 10;
 
+  speed = 1000;
+
   damageSpeed = 0;
 
   projection: MovingEntity;
