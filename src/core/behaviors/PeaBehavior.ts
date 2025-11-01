@@ -71,8 +71,13 @@ export class PeaBehavior implements EntityBehavior {
   start(controller: EntityController, createdPeashooter: Peashooter): void {
     const { spawner, garden, gameLifecycle } = controller;
 
+    const xPos = createdPeashooter.x;
+    const yPos = createdPeashooter.y;
+
     spawner.spawnLoop<Pea>(
       Pea,
+      { min: xPos, max: xPos },
+      { min: yPos, max: yPos },
       (pea) => {
         gameLifecycle.onTick();
 
@@ -95,9 +100,7 @@ export class PeaBehavior implements EntityBehavior {
         }
 
         return [peashooter.reloadSpeed, peashooter.reloadSpeed];
-      },
-      createdPeashooter.x,
-      createdPeashooter.y
+      }
     );
   }
 }

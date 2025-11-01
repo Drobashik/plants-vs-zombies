@@ -13,7 +13,7 @@ export class Peashooter extends Plant {
 
   cost = 100;
 
-  reloadSpeed = 3000;
+  reloadSpeed = 2000;
 
   projection: Pea;
 

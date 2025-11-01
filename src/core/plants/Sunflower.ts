@@ -12,6 +12,7 @@ export class Sunflower extends Plant {
   health = 30;
 
   reloadSpeed = 20000
+  firstReloadSpeed = 6000;
 
   cost = 50;
 

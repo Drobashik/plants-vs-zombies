@@ -5,7 +5,17 @@ import sunImage from "../../images/sun.webp";
 export class Sun extends Entity {
   type = "profit";
 
+  profit = 25;
+
   image = sunImage;
+
+  timeToDisappear = 6000;
+
+  appearTime = 8000;
+
+  isPickable = true;
+
+  speed: number = 6000;
 
   behavior = new SunBehavior();
 

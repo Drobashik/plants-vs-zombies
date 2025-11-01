@@ -11,17 +11,17 @@ export class Entity {
 
   action = "walking";
 
-  isHurt = false;
-
+  
   behavior: EntityBehavior;
-
+  
+  isHurt = false;
+  isPickable = false;
   isRecentlyAppeared = false;
-
   isDamaging = false;
+
   damage = 1;
-
   health = 0;
-
+  profit = 0;
   speed = 0;
 
   constructor(public x: number, public y: number) {}
