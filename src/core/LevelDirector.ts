@@ -11,7 +11,7 @@ type LevelState = {
 
 export class LevelDirector {
   levelLoop = new GameLoop(250);
-  private oneFlagInterval = 5 * 60 * 1000;
+  private oneFlagInterval = 5 * 60 * 1000; // 5 mins
   gameCompletion = 0;
 
   private state?: LevelState;
@@ -67,8 +67,7 @@ export class LevelDirector {
       this.gameLifecycle.onTick();
 
       if (state.elapsedMs >= state.durationMs) {
-        this.gameLifecycle.onGameOver("win");
-        return true;
+        return this.gameLifecycle.onGameOver("win");
       }
 
       this.gameCompletion = (state.elapsedMs / state.durationMs) * 100;

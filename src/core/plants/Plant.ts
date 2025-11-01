@@ -1,6 +1,4 @@
 import { Entity } from "../entities/Entity";
-import type { MovingEntity } from "../entities/MovingEntity";
-// TODO: create PlantHandler
 export class Plant extends Entity {
   name = "plant";
 
@@ -12,9 +10,11 @@ export class Plant extends Entity {
 
   speed = 1000;
 
-  damageSpeed = 0;
+  cost = 0;
 
-  projection: MovingEntity;
+  reloadSpeed = 0;
+
+  projection: Entity;
 
   constructor(public x: number, public y: number) {
     super(x, y);

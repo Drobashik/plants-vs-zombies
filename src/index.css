@@ -12,6 +12,9 @@ body,
 
 body {
   background-color: rgb(161, 197, 250);
+
+  font-size: 1.5rem;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
 }
 
 #root {
@@ -30,8 +33,10 @@ body {
   margin: 0 auto;
 
   display: flex;
-  justify-content: flex-start;
-  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  gap: 2rem;
 }
 
 .map {
@@ -58,7 +63,10 @@ body {
 .game-container {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: stretch;
+  flex-direction: column;
+
+  width: 100%;
 
   gap: 2rem;
 }
@@ -116,33 +124,110 @@ body {
   position: relative;
 }
 
-.cell:hover {
+.cell.selected:hover {
   background-color: rgb(11, 189, 26);
 }
 
 .controls {
   display: flex;
   justify-content: center;
-
-  margin-bottom: 1rem;
 }
 
 button {
   height: 40px;
   cursor: pointer;
 
-  padding: 0 2rem;
+  margin-left: 1rem;
+
+  min-width: 120px;
 
   font-size: 1.5rem;
   font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
 }
 
-.entity {
-  width: 100%;
+.budget-container {
+  min-width: 120px;
+
+  background-color: #964401;
+
+  border-radius: 8px;
+
   position: relative;
+}
+
+.budget-container img {
+  position: absolute;
+
+  top: 50%;
+
+  max-width: 50px;
+
+  left: 17.5%;
+
+  transform: translate(-50%, -50%);
+}
+
+.budget {
+  margin: .5rem .5rem .5rem auto;
+
+  border-radius: 2px;
+
+  max-width: 70px;
+  min-width: 70px;
+
+  text-align: center;
+
+  background-color: rgb(255, 216, 169);
+}
+
+.entity {
+  position: absolute;
+  width: 100%;
   z-index: 99;
 
   padding: 0.5rem;
+}
+
+.entity.profit {
+  transform: translate(10%, -45%);
+
+  padding: 0;
+
+  width: 90px;
+  height: 90px;
+
+  z-index: 1000;
+
+  animation: disappear 6000ms linear forwards;
+}
+
+.entity.profit.first-appear {
+  top: -400%;
+
+  animation: flying 4000ms linear forwards, disappear 6000ms linear forwards !important;
+}
+
+@keyframes flying {
+  0% {
+    top: -300%;
+  }
+
+  100% {
+    top: 50%;
+  }
+}
+
+@keyframes disappear {
+  0%,
+  80% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 .entity.bullet {
@@ -192,7 +277,7 @@ button {
 
 .entity.plant.walking.hurting {
   animation: plant-sway var(--sway-dur) ease-in-out infinite,
-    plant-hurting 1000ms linear infinite;
+    plant-hurting 1000ms linear forwards;
 }
 
 @keyframes plant-hurting {
@@ -223,7 +308,6 @@ button {
 }
 
 .entity.zombie {
-  position: absolute;
   left: 100%;
   transform: translate(-50%, -15%);
   transform-origin: 50% 100%;
@@ -239,7 +323,7 @@ button {
 .entity.zombie.walking.hurting {
   animation: march-x var(--move-dur) linear infinite,
     gait var(--gait-dur) cubic-bezier(0.25, 0.8, 0.3, 1) infinite,
-    hurting 50ms linear infinite;
+    hurting 50ms linear forwards;
 }
 
 .paused {
@@ -324,37 +408,38 @@ button {
 .head-panel {
   display: flex;
 
-  margin-top: 2rem;
+  width: 100%;
 
   justify-content: space-between;
   align-items: center;
 
   min-height: 60px;
-
-  margin-bottom: 1rem;
 }
 
 .tool-menu {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  height: 100%;
   flex-direction: column;
   gap: 1rem;
+
+  max-height: 660px;
 }
 
 .tool-plant {
-  max-width: 85px;
-  height: 50px;
+  max-width: 120px;
+  height: 70px;
 
-  padding: 1rem;
+  padding: 0.5rem;
 
-  padding-top: 0.1rem;
+  padding-top: 0.05rem;
 
   background-color: rgb(221, 221, 221);
 
   border-radius: 8px;
 
-  border: 1px solid #00000071;
+  border: 3px solid #ffffff80;
   overflow: hidden;
 
   display: flex;
@@ -368,12 +453,21 @@ button {
   outline: 2px solid #964401;
 }
 
+.tool-plant.disabled {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
 .tool-plant:hover {
   background-color: rgb(194, 194, 194);
 }
 
 .tool-plant img {
   width: 100%;
+
+  position: relative;
+
+  left: -10%;
 
   object-fit: cover;
 }

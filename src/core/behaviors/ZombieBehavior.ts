@@ -7,19 +7,23 @@ export class ZombieBehavior implements EntityBehavior {
   private controller: EntityController;
 
   private zombieMeetsPlant(zombie: Zombie) {
-    const plantEntity = this.controller.garden
-      .getCellEntities<Plant>(zombie.x, zombie.y)
-      .find((entity) => entity.type === "plant");
+    const getPlantCell = (x: number, y: number) =>
+      this.controller.garden
+        .getCellEntities<Plant>(x, y)
+        .find((entity) => entity.type === "plant");
 
-    if (plantEntity) {
-      this.controller.startDamaging(zombie, plantEntity);
+    const plant =
+      getPlantCell(zombie.x, zombie.y) || getPlantCell(zombie.x + 1, zombie.y);
 
-      this.controller.hurtEntity(plantEntity, zombie.damageSpeed / 2);
+    if (plant) {
+      this.controller.startDamaging(zombie, plant);
 
-      const isPlantEntityDead = plantEntity.health <= 0;
+      this.controller.hurtEntity(plant, zombie.damageSpeed / 2);
+
+      const isPlantEntityDead = plant.health <= 0;
 
       if (isPlantEntityDead) {
-        this.controller.garden.removeEntity(plantEntity);
+        this.controller.garden.removeEntity(plant);
 
         this.controller.continueWalking(zombie);
       }

@@ -1,26 +1,50 @@
 import type { EntityClass } from "./entities/Entity";
 import { Plant } from "./plants/Plant";
 
-
 type PlantTool<T> = {
   Instance: EntityClass<T>;
   selected: boolean;
+  disabled: boolean;
   plant: T;
 };
 
 export class PlantMenu<T extends Plant = Plant> {
   plantTools: PlantTool<T>[] = [];
 
+  budget = 50;
+
   selectedPlant: PlantTool<T> | null = null;
 
   constructor(private PlantInstances: EntityClass<T>[]) {
     for (const PlantInstance of this.PlantInstances) {
+      const plant = new PlantInstance(0, 0);
+
       this.plantTools.push({
         Instance: PlantInstance,
         selected: false,
-        plant: new PlantInstance(0, 0),
+        disabled: this.budget < plant.cost,
+        plant,
       });
     }
+  }
+
+  checkPlantsDisabled() {
+    this.plantTools = this.plantTools.map((tool) => ({
+      ...tool,
+      disabled: this.budget < tool.plant.cost,
+    }));
+  }
+
+  increaseBudget(value: number) {
+    this.budget += value;
+
+    this.checkPlantsDisabled();
+  }
+
+  decreaseBudget(value: number) {
+    this.budget -= value;
+
+    this.checkPlantsDisabled();
   }
 
   togglePlantSelection(plantName: string, value: boolean) {

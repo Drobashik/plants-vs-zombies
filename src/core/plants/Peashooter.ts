@@ -1,6 +1,6 @@
 import { Plant } from "./Plant";
 import peashooterImage from "../../images/peashooter.webp";
-import { Pea } from "./Pea";
+import { Pea } from "../bullets/Pea";
 
 export class Peashooter extends Plant {
   name = "peashooter";
@@ -11,7 +11,9 @@ export class Peashooter extends Plant {
 
   health = 50;
 
-  damageSpeed = 3000;
+  cost = 100;
+
+  reloadSpeed = 2000;
 
   projection: Pea;
 

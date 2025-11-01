@@ -1,13 +1,14 @@
 import { GameLoop } from "./GameLoop";
 import type { GardenMap } from "../GardenMap";
-import type { Spawner } from "./Spawner";
+import { type Spawner } from "./Spawner";
 import { Zombie } from "../zombies/Zombie";
 import type { Plant } from "../plants/Plant";
 import type { Entity, EntityClass } from "../entities/Entity";
 import type { MovingEntity } from "../entities/MovingEntity";
+import { SunBehavior } from "../behaviors/SunBehavior";
 
 export type GameLyfecycle = {
-  onGameOver: (outcome: "win" | "lose") => void;
+  onGameOver: (outcome: "win" | "lose") => void | boolean;
   onTick: () => void;
 };
 
@@ -24,9 +25,6 @@ export class EntityController<
   ) {}
 
   triggerGameOver(outcome: "win" | "lose") {
-    this.moveLoop.stopAll();
-    this.spawner.spawnerLoop.stopAll();
-
     this.gameLifecycle.onGameOver(outcome);
   }
 
@@ -66,23 +64,42 @@ export class EntityController<
       plant.projection.behavior.start(this, plant.projection, plant);
   }
 
+  startRandomSunSpawn() {
+    new SunBehavior().appear(this);
+  }
+
   startZombieActions<T extends Zombie>(Zombies: EntityClass<T>[]) {
+    const zombieSpawnerIds: number[] = [];
+
     Zombies.forEach((Zombie, index) => {
       let isFirstSkipped = index === 0;
 
-      this.spawner.spawnLoop<Zombie>(Zombie, (zombie) => {
-        if (!isFirstSkipped) {
-          isFirstSkipped = true;
+      const gardenLastCell = this.garden.width - 1;
+
+      const id = this.spawner.spawnLoop<Zombie>(
+        Zombie,
+        { min: gardenLastCell, max: gardenLastCell },
+        { min: 0, max: this.garden.height - 1 },
+        (zombie) => {
+          if (!isFirstSkipped) {
+            isFirstSkipped = true;
+
+            return [zombie.minSpawnInterval, zombie.maxSpawnInterval];
+          }
+
+          this.gameLifecycle.onTick();
+          this.garden.placeEntity(zombie);
+          zombie.behavior.start(this, zombie);
 
           return [zombie.minSpawnInterval, zombie.maxSpawnInterval];
         }
+      );
 
-        this.gameLifecycle.onTick();
-        this.garden.placeEntity(zombie);
-        zombie.behavior.start(this, zombie);
-
-        return [zombie.minSpawnInterval, zombie.maxSpawnInterval];
-      });
+      zombieSpawnerIds.push(id)
     });
+
+    console.log(zombieSpawnerIds)
+
+    return zombieSpawnerIds;
   }
 }
