@@ -9,7 +9,7 @@ export class Zombie extends MovingEntity {
   name = "zombie";
   image = zombieImage;
 
-  speed = 6000;
+  speed = 7500;
 
   damage = 10;
 

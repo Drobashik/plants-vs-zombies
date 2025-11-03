@@ -36,6 +36,9 @@ export class ZombieBehavior implements EntityBehavior {
     const { moveLoop, garden } = controller;
     this.controller = controller;
 
+    garden.placeEntity(zombie);
+    controller.gameLifecycle.onTick();
+
     moveLoop.setSpeed(zombie.speed);
 
     this.zombieMeetsPlant(zombie);

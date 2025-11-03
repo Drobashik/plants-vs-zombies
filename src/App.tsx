@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Cell } from "./core/GardenMap";
 import { GameManager } from "./core/GameManager";
 import flagImage from "./images/flag.webp";
@@ -41,12 +41,6 @@ function App() {
     manager.pickEntity(entity);
   };
 
-  const progressionLevel = useMemo(
-    () => manager.levelDirector.gameCompletion,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [manager.levelDirector.gameCompletion]
-  );
-
   return (
     <div className="container">
       <div className="tool-menu">
@@ -78,7 +72,7 @@ function App() {
           {manager.gameState !== "idle" && (
             <div className="level-progression">
               <div className="flag-container">
-                {Array.from({ length: manager.levelDirector.flags }).map(
+                {Array.from({ length: manager.flagsCount }).map(
                   (_, index) => (
                     <img
                       className="flag"
@@ -92,7 +86,7 @@ function App() {
               </div>
               <div
                 className="progression"
-                style={{ width: `${progressionLevel}%` }}
+                style={{ width: `${manager.waveSpawner.gameCompletion}%` }}
               ></div>
             </div>
           )}
