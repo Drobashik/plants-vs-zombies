@@ -1,11 +1,11 @@
 import { GameLoop } from "./GameLoop";
 import type { GardenMap } from "../GardenMap";
 import { type Spawner } from "./Spawner";
-import { Zombie } from "../zombies/Zombie";
 import type { Plant } from "../plants/Plant";
-import type { Entity, EntityClass } from "../entities/Entity";
+import type { Entity } from "../entities/Entity";
 import type { MovingEntity } from "../entities/MovingEntity";
 import { SunBehavior } from "../behaviors/SunBehavior";
+import type { WaveEntitySpawner } from "../WaveEntitySpawner";
 
 export type GameLyfecycle = {
   onGameOver: (outcome: "win" | "lose") => void | boolean;
@@ -21,6 +21,7 @@ export class EntityController<
   constructor(
     public garden: GardenMap,
     public spawner: Spawner,
+    public waveSpawner: WaveEntitySpawner,
     public gameLifecycle: GameLyfecycle
   ) {}
 
@@ -68,38 +69,9 @@ export class EntityController<
     new SunBehavior().appear(this);
   }
 
-  startZombieActions<T extends Zombie>(Zombies: EntityClass<T>[]) {
-    const zombieSpawnerIds: number[] = [];
-
-    Zombies.forEach((Zombie, index) => {
-      let isFirstSkipped = index === 0;
-
-      const gardenLastCell = this.garden.width - 1;
-
-      const id = this.spawner.spawnLoop<Zombie>(
-        Zombie,
-        { min: gardenLastCell, max: gardenLastCell },
-        { min: 0, max: this.garden.height - 1 },
-        (zombie) => {
-          if (!isFirstSkipped) {
-            isFirstSkipped = true;
-
-            return [zombie.minSpawnInterval, zombie.maxSpawnInterval];
-          }
-
-          this.gameLifecycle.onTick();
-          this.garden.placeEntity(zombie);
-          zombie.behavior.start(this, zombie);
-
-          return [zombie.minSpawnInterval, zombie.maxSpawnInterval];
-        }
-      );
-
-      zombieSpawnerIds.push(id)
+  startZombieActions() {
+    this.waveSpawner.performWaveSpawn((zombie) => {
+      zombie.behavior.start(this, zombie);
     });
-
-    console.log(zombieSpawnerIds)
-
-    return zombieSpawnerIds;
   }
 }
