@@ -75,9 +75,9 @@ export class PeaBehavior implements EntityBehavior {
     const yPos = createdPeashooter.y;
 
     spawner.spawnLoop<Pea>(
-      Pea,
       { min: xPos, max: xPos },
       { min: yPos, max: yPos },
+      () => Pea,
       (pea) => {
         gameLifecycle.onTick();
 

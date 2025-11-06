@@ -72,7 +72,7 @@ function App() {
           {manager.gameState !== "idle" && (
             <div className="level-progression">
               <div className="flag-container">
-                {Array.from({ length: manager.flagsCount }).map(
+                {Array.from({ length: manager.waveSpawner.totalFlags }).map(
                   (_, index) => (
                     <img
                       className="flag"
@@ -115,7 +115,7 @@ function App() {
                     <img
                       key={entity.id}
                       style={{
-                        animationDuration: `${entity.speed + 1}ms`,
+                        animationDuration: `${entity.speed + 0.1}ms`,
                       }}
                       className={`entity ${entity.type} ${
                         manager.gameState === "play" ? entity.action : "paused"

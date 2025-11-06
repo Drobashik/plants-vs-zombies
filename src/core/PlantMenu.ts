@@ -11,7 +11,7 @@ type PlantTool<T> = {
 export class PlantMenu<T extends Plant = Plant> {
   plantTools: PlantTool<T>[] = [];
 
-  budget = 50;
+  budget = 5000;
 
   selectedPlant: PlantTool<T> | null = null;
 
