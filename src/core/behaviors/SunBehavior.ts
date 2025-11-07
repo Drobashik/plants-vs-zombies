@@ -21,9 +21,9 @@ export class SunBehavior implements EntityBehavior {
     let firstSpawn = true;
 
     spawner.spawnLoop(
-      Sun,
       { min: 2, max: garden.width - 2 },
       { min: 0, max: 2 },
+      () => Sun,
       (sun) => {
         gameLifecycle.onTick();
 
@@ -53,9 +53,9 @@ export class SunBehavior implements EntityBehavior {
     const yPos = createdSunflower.y;
 
     spawner.spawnLoop(
-      Sun,
       { min: xPos, max: xPos },
       { min: yPos, max: yPos },
+      () => Sun,
       (sun) => {
         gameLifecycle.onTick();
 

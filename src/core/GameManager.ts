@@ -1,7 +1,8 @@
 import { GARDEN_HEIGHT, GARDEN_WIDTH } from "../constants";
 import { EntityController } from "./engine/EntityController";
+import type { GameLoop } from "./engine/GameLoop";
 import { Spawner } from "./engine/Spawner";
-import type { Entity } from "./entities/Entity";
+import { Entity } from "./entities/Entity";
 import { FlagWaveGenerator } from "./FlagWaveGenerator";
 import { GardenMap, type Cell } from "./GardenMap";
 import { PlantMenu } from "./PlantMenu";
@@ -9,7 +10,28 @@ import { Peashooter } from "./plants/Peashooter";
 import type { Plant } from "./plants/Plant";
 import { Sunflower } from "./plants/Sunflower";
 import { WaveEntitySpawner } from "./WaveEntitySpawner";
+import { BucketHeadZombie } from "./zombies/BucketHeadZombie";
+import { ConeHeadZombie } from "./zombies/ConeHeadZombie";
 import { Zombie } from "./zombies/Zombie";
+
+const level = [
+  {
+    weightEntities: [
+      { Entity: Zombie, weight: 12 },
+      { Entity: ConeHeadZombie, weight: 3 },
+      { Entity: BucketHeadZombie, weight: 1 },
+    ],
+    difficulty: 0.5,
+  },
+  {
+    weightEntities: [
+      { Entity: Zombie, weight: 12 },
+      { Entity: ConeHeadZombie, weight: 3 },
+      { Entity: BucketHeadZombie, weight: 1 },
+    ],
+    difficulty: 1.2,
+  },
+];
 
 export class GameManager {
   garden: GardenMap;
@@ -24,7 +46,7 @@ export class GameManager {
 
   waveSpawner: WaveEntitySpawner;
 
-  flagsCount = 0;
+  loops: GameLoop[] = [];
 
   render: () => void;
 
@@ -34,12 +56,7 @@ export class GameManager {
     this.garden = new GardenMap(GARDEN_WIDTH, GARDEN_HEIGHT);
     this.spawner = new Spawner();
 
-    const { flags } = new FlagWaveGenerator([
-      { weightEntities: [{ Entity: Zombie, weight: 10 }], difficulty: 0.5 },
-      { weightEntities: [{ Entity: Zombie, weight: 10 }], difficulty: 1.2 },
-    ]);
-
-    this.flagsCount = flags.length;
+    const { flags } = new FlagWaveGenerator(level);
 
     this.waveSpawner = new WaveEntitySpawner(flags);
     this.controller = new EntityController(
@@ -53,12 +70,42 @@ export class GameManager {
         onGameOver: () => {},
       }
     );
+
+    this.loops.push(
+      this.controller.moveLoop,
+      this.waveSpawner.waveLoop,
+      this.spawner.spawnerLoop
+    );
+  }
+
+  private stopAllLoops() {
+    for (const loop of this.loops) loop.stopAll();
+  }
+
+  private pauseAllLoops() {
+    for (const loop of this.loops) loop.pauseAll();
+
+    this.gameState = "pause";
+  }
+
+  private resumeAllLoops() {
+    for (const loop of this.loops) loop.resumeAll();
+
+    this.gameState = "play";
   }
 
   setRenderFn(renderFn?: () => void) {
     const emtpyFn = () => {};
 
     this.render = renderFn || emtpyFn;
+  }
+
+  restartGame() {
+    this.gameState = "idle";
+
+    this.garden.removeAllEntities();
+
+    this.startGame();
   }
 
   startGame() {
@@ -75,36 +122,24 @@ export class GameManager {
   endGame(outcome: "win" | "lose") {
     this.gameState = outcome;
 
-    this.controller.moveLoop.stopAll();
-    this.spawner.spawnerLoop.stopAll();
-    this.waveSpawner.waveLoop.stopAll();
+    this.stopAllLoops();
 
     this.render();
   }
 
   resumeOrPauseGame() {
-    if (this.gameState === "lose") {
-      this.gameState = "idle";
-
-      this.garden.removeAllEntities();
-
-      this.startGame();
-
-      return;
-    }
-
-    if (this.gameState === "play") {
-      this.controller.moveLoop.pauseAll();
-      this.spawner.spawnerLoop.pauseAll();
-      this.waveSpawner.waveLoop.pauseAll();
-
-      this.gameState = "pause";
-    } else if (this.gameState === "pause") {
-      this.controller.moveLoop.resumeAll();
-      this.spawner.spawnerLoop.resumeAll();
-      this.waveSpawner.waveLoop.resumeAll();
-
-      this.gameState = "play";
+    switch (this.gameState) {
+      case "pause":
+        this.resumeAllLoops();
+        break;
+      case "play":
+        this.pauseAllLoops();
+        break;
+      case "lose":
+        this.restartGame();
+        break;
+      default:
+        break;
     }
 
     this.render();

@@ -13,7 +13,7 @@ export class ZombieBehavior implements EntityBehavior {
         .find((entity) => entity.type === "plant");
 
     const plant =
-      getPlantCell(zombie.x, zombie.y) || getPlantCell(zombie.x + 1, zombie.y);
+      getPlantCell(zombie.x + 1, zombie.y) || getPlantCell(zombie.x, zombie.y);
 
     if (plant) {
       this.controller.startDamaging(zombie, plant);
@@ -24,8 +24,6 @@ export class ZombieBehavior implements EntityBehavior {
 
       if (isPlantEntityDead) {
         this.controller.garden.removeEntity(plant);
-
-        this.controller.continueWalking(zombie);
       }
     } else {
       this.controller.continueWalking(zombie);

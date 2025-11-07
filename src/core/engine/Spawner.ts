@@ -26,16 +26,16 @@ export class Spawner {
   }
 
   spawnLoop<T extends Entity>(
-    EntityInstance: EntityClass<T>,
     randomX: RandomPosition,
     randomY: RandomPosition,
+    EntityInstanceFactory: () => EntityClass<T>,
     startSpanwing: (entity: T) => [number, number] | true,
   ) {
     return this.spawnerLoop.loop(() => {
       const x = getRandom(randomX.min, randomX.max);
       const y = getRandom(randomY.min, randomY.max);
 
-      const entity = this.spawnEntity(x, y, EntityInstance);
+      const entity = this.spawnEntity(x, y, EntityInstanceFactory());
 
       if (!entity) return true;
 
