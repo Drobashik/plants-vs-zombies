@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from "react";
 import type { Cell } from "./core/GardenMap";
-import { GameManager } from "./core/GameManager";
 import flagImage from "./images/flag.webp";
 import type { Entity } from "./core/entities/Entity";
 import sunImage from "./images/sun.webp";
-
-const manager = new GameManager();
+import { gameManager, plantManager } from "./core";
 
 const buttonLabel = {
   idle: "Start",
@@ -21,34 +19,43 @@ function App() {
   const rerender = () => triggerRender((prev) => prev + 1);
 
   useEffect(() => {
-    manager.setRenderFn(rerender);
+    gameManager.setRenderFn(rerender);
   }, []);
 
   const handleGameStartStop = () => {
-    manager.resumeOrPauseGame();
-    manager.startGame();
+    if (gameManager.gameState === "idle") {
+      gameManager.startGame();
+    } else {
+      gameManager.resumeOrPauseGame();
+    }
   };
 
   const togglePlant = (plantName: string) => {
-    manager.togglePlant(plantName);
+    plantManager.togglePlant(plantName);
+
+    rerender();
   };
 
   const addPlant = (cell: Cell) => {
-    manager.addPlant(cell);
+    plantManager.addPlant(cell, gameManager.controller);
+
+    rerender();
   };
 
   const pickEntity = (entity: Entity) => {
-    manager.pickEntity(entity);
+    plantManager.pickEntity(entity);
+
+    rerender();
   };
 
   return (
     <div className="container">
       <div className="tool-menu">
-        {manager.plantMenu.plantTools.map((plantTool) => (
+        {plantManager.toolbox.plantTools.map((plantTool) => (
           <div
             key={plantTool.plant.name}
             className={`tool-plant ${plantTool.selected ? "selected" : ""} ${
-              plantTool.disabled || manager.gameState !== "play"
+              plantTool.disabled || gameManager.gameState !== "play"
                 ? "disabled"
                 : ""
             }`}
@@ -66,47 +73,49 @@ function App() {
         <div className="head-panel">
           <div className="budget-container">
             <img src={sunImage} alt="" />
-            <div className="budget">{manager.plantMenu.budget}</div>
+            <div className="budget">{plantManager.toolbox.budget}</div>
           </div>
 
-          {manager.gameState !== "idle" && (
+          {gameManager.gameState !== "idle" && (
             <div className="level-progression">
               <div className="flag-container">
-                {Array.from({ length: manager.waveSpawner.totalFlags }).map(
-                  (_, index) => (
-                    <img
-                      className="flag"
-                      src={flagImage}
-                      alt="Flag"
-                      key={index}
-                    />
-                  )
-                )}
+                {Array.from({
+                  length: gameManager.waveSpawner.totalFlags,
+                }).map((_, index) => (
+                  <img
+                    className="flag"
+                    src={flagImage}
+                    alt="Flag"
+                    key={index}
+                  />
+                ))}
                 <div className="flag"></div>
               </div>
               <div
                 className="progression"
-                style={{ width: `${manager.waveSpawner.gameCompletion}%` }}
+                style={{
+                  width: `${gameManager.waveSpawner.gameCompletion}%`,
+                }}
               ></div>
             </div>
           )}
 
           <div className="controls">
-            {buttonLabel[manager.gameState] && (
+            {buttonLabel[gameManager.gameState] && (
               <button onClick={handleGameStartStop}>
-                {buttonLabel[manager.gameState]}
+                {buttonLabel[gameManager.gameState]}
               </button>
             )}
           </div>
         </div>
 
         <div className="map">
-          {manager.garden.cells.map((row, index) => (
+          {gameManager.garden.cells.map((row, index) => (
             <div className="row" key={index}>
               {row.map((cell, index) => (
                 <div
                   className={`cell ${
-                    manager.plantMenu.selectedPlant ? "selected" : ""
+                    plantManager.toolbox.selectedPlant ? "selected" : ""
                   }`}
                   key={index}
                   onClick={() => addPlant(cell)}
@@ -118,7 +127,9 @@ function App() {
                         animationDuration: `${entity.speed + 0.1}ms`,
                       }}
                       className={`entity ${entity.type} ${
-                        manager.gameState === "play" ? entity.action : "paused"
+                        gameManager.gameState === "play"
+                          ? entity.action
+                          : "paused"
                       } ${entity.isHurt ? "hurting" : ""} ${
                         entity.isRecentlyAppeared ? "first-appear" : ""
                       }`}

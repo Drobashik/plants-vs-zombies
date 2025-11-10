@@ -1,9 +1,12 @@
 import { SunBehavior } from "../behaviors/SunBehavior";
 import { Entity } from "../entities/Entity";
 import sunImage from "../../images/sun.webp";
+import type { Plant } from "./Plant";
 
 export class Sun extends Entity {
   type = "profit";
+
+  name = "Sun";
 
   profit = 25;
 
@@ -17,9 +20,13 @@ export class Sun extends Entity {
 
   speed: number = 6000;
 
-  behavior = new SunBehavior();
+  readonly behavior = new SunBehavior();
 
-  constructor(x: number, y: number) {
+  constructor(x: number, y: number, private _parentPlant?: Plant) {
     super(x, y);
+  }
+
+  get parentPlant() {
+    return this._parentPlant;
   }
 }

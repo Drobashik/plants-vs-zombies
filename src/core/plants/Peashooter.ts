@@ -1,9 +1,10 @@
 import { Plant } from "./Plant";
 import peashooterImage from "../../images/peashooter.webp";
 import { Pea } from "../bullets/Pea";
+import { PeashooterBehavior } from "../behaviors/PeashooterBehavior";
 
 export class Peashooter extends Plant {
-  name = "peashooter";
+  name = "Peashooter";
 
   image = peashooterImage;
 
@@ -17,9 +18,11 @@ export class Peashooter extends Plant {
 
   projection: Pea;
 
+  readonly behavior = new PeashooterBehavior();
+
   constructor(public x: number, public y: number) {
     super(x, y);
 
-    this.projection = new Pea(x, y);
+    this.projection = new Pea(x, y, this);
   }
 }

@@ -4,6 +4,7 @@ import {
 } from "../entities/MovingEntity";
 import peaImage from "../../images/pea.webp";
 import { PeaBehavior } from "../behaviors/PeaBehavior";
+import type { Plant } from "../plants/Plant";
 
 export class Pea extends MovingEntity {
   speed = 350;
@@ -22,7 +23,11 @@ export class Pea extends MovingEntity {
 
   behavior = new PeaBehavior();
 
-  constructor(x: number, y: number) {
+  constructor(x: number, y: number, private _parentPlant?: Plant) {
     super(x, y);
+  }
+
+  get parentPlant() {
+    return this._parentPlant;
   }
 }

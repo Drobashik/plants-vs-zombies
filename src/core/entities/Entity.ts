@@ -6,22 +6,31 @@ export class Entity {
   id = Date.now();
 
   type = "unknown";
+
   name = "entity";
+
   image = "";
 
   action = "walking";
 
-  
-  behavior: EntityBehavior;
-  
+  readonly behavior: EntityBehavior;
+
   isHurt = false;
+
   isPickable = false;
+
   isRecentlyAppeared = false;
+
   isDamaging = false;
 
+  isPlacedOnMap = false;
+
   damage = 1;
+
   health = 0;
+
   profit = 0;
+
   speed = 0;
 
   constructor(public x: number, public y: number) {}

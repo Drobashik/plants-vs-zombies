@@ -1,6 +1,6 @@
-import { GameLoop } from "./engine/GameLoop";
-import { getRandom, Spawner } from "./engine/Spawner";
-import type { MovingEntity } from "./entities/MovingEntity";
+import { GameLoop } from "./GameLoop";
+import { getRandom, Spawner } from "./Spawner";
+import type { MovingEntity } from "../entities/MovingEntity";
 import type { Wave, WeightEntity } from "./FlagWaveGenerator";
 
 const INITIAL_COOLDOWN = 0;
@@ -77,18 +77,23 @@ export class WaveEntitySpawner extends Spawner {
 
       let entitySpawnCount = 0;
 
+      const { min, max } = interval;
+
       super.spawnLoop(
-        { min: 8, max: 8 },
-        { min: 0, max: 4 },
-        () => this.pickWeighted(entities),
-        (zombie) => {
-          if (count === entitySpawnCount) return true;
+        () => new (this.pickWeighted(entities))(8, getRandom(0, 4)),
+        (entity) => ({
+          type: "instant",
+          delays: [{ min, max }],
+          spawn: () => {
+            if (count === entitySpawnCount) return "stop";
 
-          spawn(zombie);
+            spawn(entity);
 
-          entitySpawnCount++;
-          return [interval.min, interval.max];
-        }
+            entitySpawnCount++;
+
+            return "continue";
+          },
+        })
       );
 
       return getRandom(cooldown.min, cooldown.max);

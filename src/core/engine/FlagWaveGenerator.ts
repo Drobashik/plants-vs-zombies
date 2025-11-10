@@ -1,10 +1,10 @@
-import type { EntityClass } from "./entities/Entity";
-import type { MovingEntity } from "./entities/MovingEntity";
-import type { Zombie } from "./zombies/Zombie";
+import type { EntityClass } from "../entities/Entity";
+import type { MovingEntity } from "../entities/MovingEntity";
+import type { Zombie } from "../zombies/Zombie";
 
 export type MsRange = { min: number; max: number };
 
-export type WeightEntity<T extends MovingEntity = Zombie> = {
+export type WeightEntity<T extends MovingEntity = MovingEntity> = {
   Entity: EntityClass<T>;
   weight: number;
 };

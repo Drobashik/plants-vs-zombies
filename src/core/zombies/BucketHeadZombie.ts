@@ -7,10 +7,9 @@ import zombieImage from "../../images/zombie.webp";
 export class BucketHeadZombie extends Zombie {
   image = bucketHeadZombieImage;
 
-  health = 400;
+  name = "Bucket Head Zombie";
 
-  minSpawnInterval = 50000;
-  maxSpawnInterval = 100000;
+  health = 400;
 
   constructor(x: number, y: number) {
     super(x, y);
@@ -30,5 +29,7 @@ export class BucketHeadZombie extends Zombie {
     if (this.health < 100) {
       this.image = zombieImage;
     }
+
+    super.makeZombieWithoutHand();
   }
 }

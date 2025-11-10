@@ -4,9 +4,11 @@ export type MovingEntityAction = "walking" | "paused" | "damaging";
 
 export class MovingEntity extends Entity {
   name = "Entity name";
+
   image = "";
 
   speed = 1000; // seconds per cell
+
   damageSpeed = 1000;
 
   action: MovingEntityAction = "walking";

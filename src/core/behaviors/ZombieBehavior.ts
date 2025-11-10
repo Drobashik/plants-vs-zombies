@@ -4,11 +4,11 @@ import { Zombie } from "../zombies/Zombie";
 import type { EntityBehavior } from "./EntityBehavior";
 
 export class ZombieBehavior implements EntityBehavior {
-  private controller: EntityController;
+  private zombieMeetsPlant(controller: EntityController, zombie: Zombie) {
+    const { garden } = controller;
 
-  private zombieMeetsPlant(zombie: Zombie) {
     const getPlantCell = (x: number, y: number) =>
-      this.controller.garden
+      garden
         .getCellEntities<Plant>(x, y)
         .find((entity) => entity.type === "plant");
 
@@ -16,33 +16,38 @@ export class ZombieBehavior implements EntityBehavior {
       getPlantCell(zombie.x + 1, zombie.y) || getPlantCell(zombie.x, zombie.y);
 
     if (plant) {
-      this.controller.startDamaging(zombie, plant);
+      controller.startDamaging(zombie, plant);
 
-      this.controller.hurtEntity(plant, zombie.damageSpeed / 2);
+      controller.hurtEntity(plant, zombie.damageSpeed / 2);
 
       const isPlantEntityDead = plant.health <= 0;
 
       if (isPlantEntityDead) {
-        this.controller.garden.removeEntity(plant);
+        garden.removeEntity(plant);
+
+        const nextPlant = getPlantCell(zombie.x, zombie.y);
+
+        if (!nextPlant) {
+          controller.continueWalking(zombie);
+        }
       }
     } else {
-      this.controller.continueWalking(zombie);
+      controller.continueWalking(zombie);
     }
   }
 
   start(controller: EntityController, zombie: Zombie): void {
-    const { moveLoop, garden } = controller;
-    this.controller = controller;
+    const { gameLifecycle, moveLoop, garden } = controller;
 
     garden.placeEntity(zombie);
-    controller.gameLifecycle.onTick();
+    gameLifecycle.onTick();
 
     moveLoop.setSpeed(zombie.speed);
 
-    this.zombieMeetsPlant(zombie);
+    this.zombieMeetsPlant(controller, zombie);
 
     moveLoop.loop(() => {
-      controller.gameLifecycle.onTick();
+      gameLifecycle.onTick();
 
       const isZombieDead = zombie.health <= 0;
 
@@ -64,7 +69,7 @@ export class ZombieBehavior implements EntityBehavior {
         controller.makeOneStep(zombie);
       }
 
-      this.zombieMeetsPlant(zombie);
+      this.zombieMeetsPlant(controller, zombie);
 
       return zombie.isDamaging ? zombie.damageSpeed : zombie.speed;
     });

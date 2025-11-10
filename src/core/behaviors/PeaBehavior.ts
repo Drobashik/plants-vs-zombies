@@ -1,17 +1,14 @@
 import type { EntityController } from "../engine/EntityController";
 import { Pea } from "../bullets/Pea";
-import type { Plant } from "../plants/Plant";
 import { Zombie } from "../zombies/Zombie";
 import type { EntityBehavior } from "./EntityBehavior";
-import type { Peashooter } from "../plants/Peashooter";
 
 export class PeaBehavior implements EntityBehavior {
-  protected moveToTarget(
-    controller: EntityController,
-    pea: Pea,
-    plant: Plant
-  ): void {
-    const { moveLoop, garden } = controller;
+  start(controller: EntityController, pea: Pea) {
+    const { moveLoop, garden, gameLifecycle } = controller;
+
+    pea.isRecentlyAppeared = true;
+    garden.placeEntity(pea);
 
     const peaSpeed = pea.speed;
 
@@ -20,7 +17,7 @@ export class PeaBehavior implements EntityBehavior {
     moveLoop.setSpeed(pea.speed);
 
     moveLoop.loop(() => {
-      controller.gameLifecycle.onTick();
+      gameLifecycle.onTick();
 
       const getCellZombie = (x: number, y: number) =>
         garden
@@ -50,7 +47,7 @@ export class PeaBehavior implements EntityBehavior {
 
       const isPeaAtEdge = pea.x === garden.width - 1;
 
-      if (isPeaAtEdge || !plant) {
+      if (isPeaAtEdge) {
         garden.removeEntity(pea);
 
         return true;
@@ -66,41 +63,5 @@ export class PeaBehavior implements EntityBehavior {
 
       return pea.speed;
     });
-  }
-
-  start(controller: EntityController, createdPeashooter: Peashooter): void {
-    const { spawner, garden, gameLifecycle } = controller;
-
-    const xPos = createdPeashooter.x;
-    const yPos = createdPeashooter.y;
-
-    spawner.spawnLoop<Pea>(
-      { min: xPos, max: xPos },
-      { min: yPos, max: yPos },
-      () => Pea,
-      (pea) => {
-        gameLifecycle.onTick();
-
-        const peashooter = garden
-          .getCellEntities<Peashooter>(createdPeashooter.x, createdPeashooter.y)
-          .find((entity) => entity.id === createdPeashooter.id)!;
-
-        if (!peashooter) {
-          return true;
-        }
-
-        const zombieInRow = garden
-          .getRowEntitiesFrom(peashooter.x, peashooter.y)
-          .find((entity) => entity instanceof Zombie);
-
-        if (zombieInRow) {
-          pea.isRecentlyAppeared = true;
-          garden.placeEntity(pea);
-          this.moveToTarget(controller, pea, peashooter);
-        }
-
-        return [peashooter.reloadSpeed, peashooter.reloadSpeed];
-      }
-    );
   }
 }
