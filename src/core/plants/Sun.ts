@@ -1,25 +1,30 @@
 import { SunBehavior } from "../behaviors/SunBehavior";
 import { Entity } from "../entities/Entity";
 import sunImage from "../../images/sun.webp";
+import type { Plant } from "./Plant";
 
 export class Sun extends Entity {
-  type = "profit";
+  override readonly type: string = "profit";
 
-  profit = 25;
+  override readonly name: string = "Sun";
 
-  image = sunImage;
+  protected override _image = sunImage;
 
-  timeToDisappear = 6000;
+  readonly profit = 25;
 
-  appearTime = 8000;
+  readonly timeToDisappear = 6000;
 
-  isPickable = true;
+  readonly appearTime = 8000;
 
-  speed: number = 6000;
+  readonly isPickable = true;
 
-  behavior = new SunBehavior();
+  readonly behavior = new SunBehavior();
 
-  constructor(x: number, y: number) {
+  constructor(x: number, y: number, private _parentPlant?: Plant) {
     super(x, y);
+  }
+
+  get parentPlant() {
+    return this._parentPlant;
   }
 }

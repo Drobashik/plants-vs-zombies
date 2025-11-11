@@ -4,42 +4,37 @@ import withoutHandZombieImage from "../../images/withoutHandZombie.webp";
 import { MovingEntity } from "../entities/MovingEntity";
 
 export class Zombie extends MovingEntity {
-  type = "zombie";
+  override readonly type: string = "zombie";
 
-  name = "zombie";
-  image = zombieImage;
+  override readonly name: string = "Zombie";
 
-  speed = 7500;
+  protected override _image = zombieImage;
 
-  damage = 10;
+  readonly behavior = new ZombieBehavior();
 
-  health = 100;
+  override speed = 7500;
 
-  minSpawnInterval = 3000;
-  maxSpawnInterval = 50000;
+  override damage = 10;
 
-  behavior = new ZombieBehavior();
+  protected override _health = 100;
 
   constructor(public x: number, public y: number) {
     super(x, y);
-  }
-
-  changeZombieDifficulty(difficulty: number) {
-    this.maxSpawnInterval = Math.max(
-      this.minSpawnInterval,
-      this.maxSpawnInterval - difficulty
-    );
   }
 
   makeStep() {
     this.x -= 1;
   }
 
+  protected makeZombieWithoutHand() {
+    if (this.health < 50) {
+      this._image = withoutHandZombieImage;
+    }
+  }
+
   takeDamage(damage: number): void {
     super.takeDamage(damage);
 
-    if (this.health < 50) {
-      this.image = withoutHandZombieImage;
-    }
+    this.makeZombieWithoutHand();
   }
 }

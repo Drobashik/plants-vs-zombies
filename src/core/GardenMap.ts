@@ -7,18 +7,22 @@ export type Cell = {
 };
 
 export class GardenMap {
-  cells: Cell[][] = [];
+  private _cells: Cell[][] = [];
 
   constructor(public width: number, public height: number) {
     this.createMap();
   }
 
-  createMap() {
+  get cells() {
+    return this._cells;
+  }
+
+  private createMap() {
     for (let y = 0; y < this.height; y++) {
-      this.cells.push([]);
+      this._cells.push([]);
 
       for (let x = 0; x < this.width; x++) {
-        this.cells[y].push({ x, y, entities: [] });
+        this._cells[y].push({ x, y, entities: [] });
       }
     }
   }
@@ -26,29 +30,39 @@ export class GardenMap {
   placeEntity(entity: Entity) {
     const { x, y } = entity;
 
-    this.cells[y][x] = {
+    entity.isPlacedOnMap = true;
+
+    this._cells[y][x] = {
       x,
       y,
-      entities: [...this.cells[y][x].entities, entity],
+      entities: [...this._cells[y][x].entities, entity],
     };
   }
 
   removeEntity(entity: Entity) {
     const { x, y } = entity;
 
-    this.cells[y][x].entities = this.cells[y][x].entities.filter(
-      (entityToFilter) => entityToFilter.id !== entity.id
+    this._cells[y][x].entities = this._cells[y][x].entities.filter(
+      (entityToFilter) => {
+        if (entityToFilter.id !== entity.id) {
+          entity.isPlacedOnMap = false;
+
+          return true;
+        }
+
+        return false;
+      }
     );
   }
 
   removeAllEntities() {
-    this.cells = [];
+    this._cells = [];
 
     this.createMap();
   }
 
   getCellEntities<T extends Entity>(x: number, y: number) {
-    const entities = this.cells[y][x]?.entities || [];
+    const entities = this._cells[y][x]?.entities || [];
 
     return entities as T[];
   }
@@ -56,7 +70,7 @@ export class GardenMap {
   getRowEntitiesFrom(x: number, y: number) {
     const resultEntities = [];
 
-    for (const cell of this.cells[y]) {
+    for (const cell of this._cells[y]) {
       if (cell.x >= x) {
         for (const entity of cell.entities) {
           if (entity) {
@@ -72,7 +86,7 @@ export class GardenMap {
   getEntities<T extends Entity>(EntityInstances: EntityClass<T>[]) {
     const resultEntities: T[] = [];
 
-    for (const innerCells of this.cells) {
+    for (const innerCells of this._cells) {
       for (const cell of innerCells) {
         const { entities } = cell;
 

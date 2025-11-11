@@ -1,3 +1,4 @@
+import { INITIAL_BUDGET } from "../constants";
 import type { EntityClass } from "./entities/Entity";
 import { Plant } from "./plants/Plant";
 
@@ -8,76 +9,70 @@ type PlantTool<T> = {
   plant: T;
 };
 
-export class PlantMenu<T extends Plant = Plant> {
-  plantTools: PlantTool<T>[] = [];
+export class PlantToolbox<T extends Plant = Plant> {
+  _plantTools: PlantTool<T>[] = [];
 
-  budget = 5000;
-
-  selectedPlant: PlantTool<T> | null = null;
+  _selectedPlant: PlantTool<T> | null = null;
 
   constructor(private PlantInstances: EntityClass<T>[]) {
     for (const PlantInstance of this.PlantInstances) {
       const plant = new PlantInstance(0, 0);
 
-      this.plantTools.push({
+      this._plantTools.push({
         Instance: PlantInstance,
         selected: false,
-        disabled: this.budget < plant.cost,
+        disabled: INITIAL_BUDGET < plant.cost,
         plant,
       });
     }
   }
 
-  checkPlantsDisabled() {
-    this.plantTools = this.plantTools.map((tool) => ({
+  get plantTools() {
+    return this._plantTools;
+  }
+
+  get selectedPlant() {
+    return this._selectedPlant;
+  }
+
+  checkPlantsDisabled(budgetValue: number) {
+    this._plantTools = this._plantTools.map((tool) => ({
       ...tool,
-      disabled: this.budget < tool.plant.cost,
+      disabled: budgetValue < tool.plant.cost,
     }));
   }
 
-  increaseBudget(value: number) {
-    this.budget += value;
-
-    this.checkPlantsDisabled();
-  }
-
-  decreaseBudget(value: number) {
-    this.budget -= value;
-
-    this.checkPlantsDisabled();
-  }
-
   togglePlantSelection(plantName: string, value: boolean) {
-    this.plantTools = this.plantTools.map((plantTool) => ({
+    this._plantTools = this._plantTools.map((plantTool) => ({
       ...plantTool,
       selected: plantTool.plant.name === plantName ? value : false,
     }));
 
-    const selected = this.plantTools.find((plant) => plant.selected);
+    const selected = this._plantTools.find((plant) => plant.selected);
 
     const SelectedInstance = this.PlantInstances.find(
       (Instance) => selected?.plant instanceof Instance
     );
 
     if (selected && SelectedInstance) {
-      this.selectedPlant = { ...selected, Instance: SelectedInstance };
+      this._selectedPlant = { ...selected, Instance: SelectedInstance };
     } else {
-      this.selectedPlant = null;
+      this._selectedPlant = null;
     }
 
-    return this.plantTools;
+    return this._plantTools;
   }
 
   getPlantTool(plantName: string) {
-    return this.plantTools.find(
+    return this._plantTools.find(
       (plantTool) => plantTool.plant.name === plantName
     );
   }
 
   createPlant(x: number, y: number) {
-    if (!this.selectedPlant) return null;
+    if (!this._selectedPlant) return null;
 
-    const PlantInstance = this.selectedPlant.Instance;
+    const PlantInstance = this._selectedPlant.Instance;
 
     return new PlantInstance(x, y);
   }

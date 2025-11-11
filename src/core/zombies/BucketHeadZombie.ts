@@ -5,30 +5,31 @@ import heavilyDamagedBucketZombieImage from "../../images/heavilyDamagedBucket.w
 import zombieImage from "../../images/zombie.webp";
 
 export class BucketHeadZombie extends Zombie {
-  image = bucketHeadZombieImage;
+  override readonly name: string = "Bucket Head Zombie";
 
-  health = 400;
+  protected override _image = bucketHeadZombieImage;
 
-  minSpawnInterval = 50000;
-  maxSpawnInterval = 100000;
+  protected override _health = 400;
 
   constructor(x: number, y: number) {
     super(x, y);
   }
 
-  takeDamage(damage: number): void {
+  takeDamage(damage: number) {
     super.takeDamage(damage);
 
     if (this.health < 300) {
-      this.image = damagedBucketZombieImage;
+      this._image = damagedBucketZombieImage;
     }
 
     if (this.health < 200) {
-      this.image = heavilyDamagedBucketZombieImage;
+      this._image = heavilyDamagedBucketZombieImage;
     }
 
     if (this.health < 100) {
-      this.image = zombieImage;
+      this._image = zombieImage;
     }
+
+    super.makeZombieWithoutHand();
   }
 }

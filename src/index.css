@@ -175,8 +175,6 @@ button {
   position: absolute;
   width: 100%;
   z-index: 99;
-
-  padding: 0.5rem;
 }
 
 .entity.profit {
@@ -224,10 +222,10 @@ button {
 }
 
 .entity.bullet {
-  max-width: 40px;
+  max-width: 25px;
   position: absolute;
 
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -95%);
   animation: bullet linear infinite;
 }
 
@@ -302,7 +300,6 @@ button {
 
 .entity.zombie {
   left: 100%;
-  transform: translate(-50%, -15%);
   will-change: left, transform, filter;
 
   --move-dur: 12s;
@@ -358,42 +355,37 @@ button {
 @keyframes gait {
   0%,
   100% {
-    transform: translate(-50%, -15%) rotate(0deg);
+    transform: translate(-50%, -25%) rotate(0deg);
   }
   25% {
-    transform: translate(-50%, -16.5%) rotate(2deg);
+    transform: translate(-50%, -26.5%) rotate(2deg);
   }
   50% {
-    transform: translate(-50%, -18%) rotate(0deg);
+    transform: translate(-50%, -28%) rotate(0deg);
   }
   75% {
-    transform: translate(-50%, -16.5%) rotate(-2deg);
+    transform: translate(-50%, -26.5%) rotate(-2deg);
   }
 }
 
 @keyframes damage {
   0% {
-    transform: translate(-50%, -15%) rotate(0deg) scale(1);
-    filter: none;
+    transform: translate(-50%, -25%) rotate(0deg) scale(1);
   }
   25% {
-    transform: translate(calc(-50% - 2px), -16%) rotate(1deg)
+    transform: translate(calc(-50% - 2px), -26%) rotate(1deg)
       scale(1.02, var(--squash));
-    filter: brightness(1.08) saturate(1.05);
   }
   45% {
-    transform: translate(calc(-50% + var(--recoil-px)), -14.5%) rotate(-1.2deg)
+    transform: translate(calc(-50% + var(--recoil-px)), -24.5%) rotate(-1.2deg)
       scale(0.98, 1.02);
-    filter: brightness(calc(1 + 0.2 * var(--tint))) saturate(1.1);
   }
   70% {
-    transform: translate(calc(-50% + 1px), -15.5%) rotate(0.4deg)
+    transform: translate(calc(-50% + 1px), -25.5%) rotate(0.4deg)
       scale(1.01, 0.98);
-    filter: brightness(1.03);
   }
   100% {
-    transform: translate(-50%, -15%) rotate(0deg) scale(1);
-    filter: none;
+    transform: translate(-50%, -25%) rotate(0deg) scale(1);
   }
 }
 
@@ -463,7 +455,7 @@ button {
 
   position: relative;
 
-  left: -10%;
+  left: -15%;
 
   object-fit: cover;
 }

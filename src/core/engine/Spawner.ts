@@ -1,55 +1,69 @@
-import type { Entity, EntityClass } from "../entities/Entity";
+import { Entity } from "../entities/Entity";
 import { GameLoop } from "./GameLoop";
 
 export type RandomPosition = {
   min: number;
   max: number;
-}
+};
+
+type MsRange = { min: number; max: number };
+
+type SpawnOptions = {
+  type: "instant" | "delay";
+  delays: MsRange[];
+  spawn: () => "stop" | "continue";
+};
 
 export const getRandom = (min: number, max: number) => {
   return Math.round(Math.random() * (max - min) + min);
 };
 
 export class Spawner {
-  spawnerLoop = new GameLoop();
+  _spawnerLoop = new GameLoop();
 
-  constructor() {}
-
-  private spawnEntity<T extends Entity>(
-    x: number,
-    y: number,
-    EntityInstance: EntityClass<T>
-  ) {
-    const entity = new EntityInstance(x, y);
-
-    return entity;
+  get spawnerLoop() {
+    return this._spawnerLoop;
   }
 
   spawnLoop<T extends Entity>(
-    randomX: RandomPosition,
-    randomY: RandomPosition,
-    EntityInstanceFactory: () => EntityClass<T>,
-    startSpanwing: (entity: T) => [number, number] | true,
+    createEntity: () => T,
+    retrieveSpawnOptions: (entity: T) => SpawnOptions
   ) {
-    return this.spawnerLoop.loop(() => {
-      const x = getRandom(randomX.min, randomX.max);
-      const y = getRandom(randomY.min, randomY.max);
+    let waitingForDelay = true;
+    let delayCount = 0;
 
-      const entity = this.spawnEntity(x, y, EntityInstanceFactory());
+    this._spawnerLoop.loop(() => {
+      const { spawn, delays, type } = retrieveSpawnOptions(createEntity());
 
-      if (!entity) return true;
+      const { min, max } = delays[delayCount];
 
-      const loopData = startSpanwing(entity);
-
-      if (!Array.isArray(loopData)) {
-        return loopData;
+      if (delayCount < delays.length - 1) {
+        delayCount++;
       }
 
-      const [minSpawnInterval, maxSpawnInterval] = loopData;
+      const delayTime = getRandom(min, max);
 
-      const spawnInterval = getRandom(minSpawnInterval, maxSpawnInterval);
+      if (type === "instant") {
+        const decision = spawn();
 
-      return spawnInterval;
+        if (decision === "stop") {
+          return true;
+        }
+      }
+
+      if (type === "delay") {
+        if (!waitingForDelay) {
+          const decision = spawn();
+
+          if (decision === "stop") {
+            return true;
+          }
+        }
+
+        waitingForDelay = false;
+      }
+
+      return delayTime;
     });
   }
 }

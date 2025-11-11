@@ -3,30 +3,45 @@ import type { EntityBehavior } from "../behaviors/EntityBehavior";
 export type EntityClass<T> = new (x: number, y: number) => T;
 
 export class Entity {
-  id = Date.now();
+  readonly id = Date.now();
 
-  type = "unknown";
-  name = "entity";
-  image = "";
+  readonly type: string = "unknown";
+
+  readonly name: string = "Entity";
+
+  protected _image = "";
+
+  readonly profit: number = 0;
+
+  readonly behavior: EntityBehavior;
+
+  readonly isPickable: boolean = false;
 
   action = "walking";
 
-  
-  behavior: EntityBehavior;
-  
   isHurt = false;
-  isPickable = false;
+
   isRecentlyAppeared = false;
+
   isDamaging = false;
 
+  isPlacedOnMap = false;
+
   damage = 1;
-  health = 0;
-  profit = 0;
-  speed = 0;
+
+  protected _health = 0;
 
   constructor(public x: number, public y: number) {}
 
+  get image() {
+    return this._image;
+  }
+
+  get health() {
+    return this._health;
+  }
+
   takeDamage(damage: number) {
-    this.health -= damage;
+    this._health -= damage;
   }
 }
