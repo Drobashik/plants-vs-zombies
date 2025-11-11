@@ -16,19 +16,35 @@ export type GameLyfecycle = {
 };
 
 export class EntityController {
-  moveLoop: GameLoop;
-  spawner: Spawner;
+  private _moveLoop: GameLoop;
+  private _spawner: Spawner;
 
   constructor(
-    public garden: GardenMap,
-    public gameLifecycle: GameLyfecycle
+    private _garden: GardenMap,
+    private _gameLifecycle: GameLyfecycle
   ) {
-    this.moveLoop = new GameLoop();
-    this.spawner = new Spawner();
+    this._moveLoop = new GameLoop();
+    this._spawner = new Spawner();
+  }
+
+  get moveLoop() {
+    return this._moveLoop;
+  }
+
+  get spawner() {
+    return this._spawner;
+  }
+
+  get garden() {
+    return this._garden;
+  }
+
+  get gameLifecycle() {
+    return this._gameLifecycle;
   }
 
   triggerGameOver(outcome: GameOutcome) {
-    this.gameLifecycle.onGameOver(outcome);
+    this._gameLifecycle.onGameOver(outcome);
   }
 
   hurtEntity(entity: Entity, hurtTime = 50) {
@@ -40,9 +56,9 @@ export class EntityController {
   }
 
   makeOneStep(entity: MovingEntity, direction: Direction = "left") {
-    this.garden.removeEntity(entity);
+    this._garden.removeEntity(entity);
     entity.makeStep(direction);
-    this.garden.placeEntity(entity);
+    this._garden.placeEntity(entity);
   }
 
   startDamaging(damagingEntity: Entity, victim: Entity) {

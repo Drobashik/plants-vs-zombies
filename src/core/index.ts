@@ -1,4 +1,5 @@
 import { GARDEN_HEIGHT, GARDEN_WIDTH } from "../constants";
+import { Budget } from "./Budget";
 import { level, plants } from "./data/levelData";
 import { FlagWaveGenerator } from "./engine/FlagWaveGenerator";
 import { GameManager } from "./GameManager";
@@ -11,9 +12,10 @@ const gardenMap = new GardenMap(GARDEN_WIDTH, GARDEN_HEIGHT);
 
 const flagsGenerator = new FlagWaveGenerator(level);
 
-export const gameManager = new GameManager(gardenMap, flagsGenerator)
+export const gameManager = new GameManager(gardenMap, flagsGenerator);
 
 export const plantManager = new PlantManager(
   new PlantToolbox<Plant>(plants),
-  gardenMap,
+  new Budget(),
+  gardenMap
 );

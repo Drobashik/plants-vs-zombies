@@ -1,3 +1,4 @@
+import { INITIAL_BUDGET } from "../constants";
 import type { EntityClass } from "./entities/Entity";
 import { Plant } from "./plants/Plant";
 
@@ -11,8 +12,6 @@ type PlantTool<T> = {
 export class PlantToolbox<T extends Plant = Plant> {
   _plantTools: PlantTool<T>[] = [];
 
-  _budget = 5000;
-
   _selectedPlant: PlantTool<T> | null = null;
 
   constructor(private PlantInstances: EntityClass<T>[]) {
@@ -22,7 +21,7 @@ export class PlantToolbox<T extends Plant = Plant> {
       this._plantTools.push({
         Instance: PlantInstance,
         selected: false,
-        disabled: this._budget < plant.cost,
+        disabled: INITIAL_BUDGET < plant.cost,
         plant,
       });
     }
@@ -32,31 +31,15 @@ export class PlantToolbox<T extends Plant = Plant> {
     return this._plantTools;
   }
 
-  get budget() {
-    return this._budget;
-  }
-
   get selectedPlant() {
     return this._selectedPlant;
   }
 
-  checkPlantsDisabled() {
+  checkPlantsDisabled(budgetValue: number) {
     this._plantTools = this._plantTools.map((tool) => ({
       ...tool,
-      disabled: this._budget < tool.plant.cost,
+      disabled: budgetValue < tool.plant.cost,
     }));
-  }
-
-  increaseBudget(value: number) {
-    this._budget += value;
-
-    this.checkPlantsDisabled();
-  }
-
-  decreaseBudget(value: number) {
-    this._budget -= value;
-
-    this.checkPlantsDisabled();
   }
 
   togglePlantSelection(plantName: string, value: boolean) {

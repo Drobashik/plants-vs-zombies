@@ -4,21 +4,19 @@ import sunImage from "../../images/sun.webp";
 import type { Plant } from "./Plant";
 
 export class Sun extends Entity {
-  type = "profit";
+  override readonly type: string = "profit";
 
-  name = "Sun";
+  override readonly name: string = "Sun";
 
-  profit = 25;
+  protected override _image = sunImage;
 
-  image = sunImage;
+  readonly profit = 25;
 
-  timeToDisappear = 6000;
+  readonly timeToDisappear = 6000;
 
-  appearTime = 8000;
+  readonly appearTime = 8000;
 
-  isPickable = true;
-
-  speed: number = 6000;
+  readonly isPickable = true;
 
   readonly behavior = new SunBehavior();
 

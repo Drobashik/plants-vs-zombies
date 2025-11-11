@@ -7,7 +7,7 @@ export type Cell = {
 };
 
 export class GardenMap {
-  _cells: Cell[][] = [];
+  private _cells: Cell[][] = [];
 
   constructor(public width: number, public height: number) {
     this.createMap();

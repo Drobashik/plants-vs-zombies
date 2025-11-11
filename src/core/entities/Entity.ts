@@ -3,21 +3,23 @@ import type { EntityBehavior } from "../behaviors/EntityBehavior";
 export type EntityClass<T> = new (x: number, y: number) => T;
 
 export class Entity {
-  id = Date.now();
+  readonly id = Date.now();
 
-  type = "unknown";
+  readonly type: string = "unknown";
 
-  name = "entity";
+  readonly name: string = "Entity";
 
-  image = "";
+  protected _image = "";
 
-  action = "walking";
+  readonly profit: number = 0;
 
   readonly behavior: EntityBehavior;
 
-  isHurt = false;
+  readonly isPickable: boolean = false;
 
-  isPickable = false;
+  action = "walking";
+
+  isHurt = false;
 
   isRecentlyAppeared = false;
 
@@ -27,15 +29,19 @@ export class Entity {
 
   damage = 1;
 
-  health = 0;
-
-  profit = 0;
-
-  speed = 0;
+  protected _health = 0;
 
   constructor(public x: number, public y: number) {}
 
+  get image() {
+    return this._image;
+  }
+
+  get health() {
+    return this._health;
+  }
+
   takeDamage(damage: number) {
-    this.health -= damage;
+    this._health -= damage;
   }
 }

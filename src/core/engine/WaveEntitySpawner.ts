@@ -2,23 +2,35 @@ import { GameLoop } from "./GameLoop";
 import { getRandom, Spawner } from "./Spawner";
 import type { MovingEntity } from "../entities/MovingEntity";
 import type { Wave, WeightEntity } from "./FlagWaveGenerator";
-
-const INITIAL_COOLDOWN = 0;
+import { INITIAL_ENTITY_COOLDOWN } from "../../constants";
 
 export class WaveEntitySpawner extends Spawner {
-  waveLoop: GameLoop = new GameLoop(INITIAL_COOLDOWN);
+  private _waveLoop: GameLoop = new GameLoop(INITIAL_ENTITY_COOLDOWN);
 
   private waveCount = 0;
+
   private flagCount = 0;
 
-  gameCompletion = 0;
+  private _gameCompletion = 0;
 
-  totalFlags = 0;
+  private _totalFlags = 0;
 
   constructor(private flags: Wave[][]) {
     super();
 
-    this.totalFlags = flags.length;
+    this._totalFlags = flags.length;
+  }
+
+  get waveLoop() {
+    return this._waveLoop;
+  }
+
+  get totalFlags() {
+    return this._totalFlags;
+  }
+
+  get gameCompletion() {
+    return this._gameCompletion;
   }
 
   private pickWeighted(entities: WeightEntity[]) {
@@ -47,7 +59,7 @@ export class WaveEntitySpawner extends Spawner {
       totalWaves += this.flags[i].length;
     }
 
-    this.waveLoop.loop(() => {
+    this._waveLoop.loop(() => {
       const isLastWave = this.waveCount === totalFlagWaves;
 
       if (isLastWave) {
@@ -59,7 +71,7 @@ export class WaveEntitySpawner extends Spawner {
       const isLastFlag = this.flagCount === this.flags.length;
 
       if (isLastFlag) {
-        this.waveLoop.stopAll();
+        this._waveLoop.stopAll();
 
         return true;
       }
@@ -73,7 +85,7 @@ export class WaveEntitySpawner extends Spawner {
 
       completedWaves++;
 
-      this.gameCompletion = (completedWaves / totalWaves) * 100;
+      this._gameCompletion = (completedWaves / totalWaves) * 100;
 
       let entitySpawnCount = 0;
 

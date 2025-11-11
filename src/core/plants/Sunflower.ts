@@ -1,29 +1,25 @@
 import { Plant } from "./Plant";
 import sunflowerImage from "../../images/sunflower.webp";
-import { Sun } from "./Sun";
 import { SunflowerBehavior } from "../behaviors/SunflowerBehavior";
 
 export class Sunflower extends Plant {
-  name = "Sunflower";
+  override readonly name: string = "Sunflower";
 
-  plantType = "generator";
+  override readonly plantType: string = "generator";
 
-  image = sunflowerImage;
+  protected override _image = sunflowerImage;
 
-  health = 30;
+  override readonly reloadSpeed: number = 20000;
 
-  reloadSpeed = 20000;
-  firstReloadSpeed = 6000;
+  override readonly cost: number = 50;
 
-  cost = 50;
+  override readonly behavior = new SunflowerBehavior();
 
-  projection: Sun;
+  readonly firstReloadSpeed = 6000;
 
-  readonly behavior = new SunflowerBehavior();
+  protected override _health = 30;
 
   constructor(public x: number, public y: number) {
     super(x, y);
-
-    this.projection = new Sun(x, y, this);
   }
 }

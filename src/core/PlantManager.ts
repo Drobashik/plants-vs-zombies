@@ -1,10 +1,19 @@
+import type { Budget } from "./Budget";
 import type { EntityController } from "./engine/EntityController";
 import type { Entity } from "./entities/Entity";
 import type { Cell, GardenMap } from "./GardenMap";
 import type { PlantToolbox } from "./PlantToolbox";
 
 export class PlantManager {
-  constructor(private _toolbox: PlantToolbox, private garden: GardenMap) {}
+  constructor(
+    private _toolbox: PlantToolbox,
+    private _budget: Budget,
+    private garden: GardenMap
+  ) {}
+
+  get budget() {
+    return this._budget;
+  }
 
   get toolbox() {
     return this._toolbox;
@@ -23,13 +32,17 @@ export class PlantManager {
 
     this.garden.placeEntity(createdPlant);
 
-    this._toolbox.decreaseBudget(createdPlant.cost);
+    this._budget.decreaseBudget(createdPlant.cost);
+
+    this._toolbox.checkPlantsDisabled(this._budget.value);
 
     createdPlant.behavior.start(controller, createdPlant);
   }
 
   pickEntity(entity: Entity & { profit: number }) {
-    this._toolbox.increaseBudget(entity.profit);
+    this._budget.increaseBudget(entity.profit);
+
+    this._toolbox.checkPlantsDisabled(this._budget.value);
 
     this.garden.removeEntity(entity);
   }

@@ -73,7 +73,7 @@ function App() {
         <div className="head-panel">
           <div className="budget-container">
             <img src={sunImage} alt="" />
-            <div className="budget">{plantManager.toolbox.budget}</div>
+            <div className="budget">{plantManager.budget.value}</div>
           </div>
 
           {gameManager.gameState !== "idle" && (

@@ -1,20 +1,16 @@
 import { Entity } from "../entities/Entity";
 export class Plant extends Entity {
-  name = "plant";
+  override readonly type: string = "plant";
 
-  type = "plant";
+  override readonly name: string = "Plant";
 
-  plantType = "unknown";
+  readonly plantType: string = "unknown";
 
-  health = 10;
+  readonly cost: number = 0;
 
-  speed = 1000;
+  readonly reloadSpeed: number = 0;
 
-  cost = 0;
-
-  reloadSpeed = 0;
-
-  projection: Entity;
+  protected override _health = 10;
 
   constructor(public x: number, public y: number) {
     super(x, y);

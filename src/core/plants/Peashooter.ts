@@ -1,28 +1,23 @@
 import { Plant } from "./Plant";
-import peashooterImage from "../../images/peashooter.webp";
-import { Pea } from "../bullets/Pea";
+import peashooterImage from "../../images/peashooter.png";
 import { PeashooterBehavior } from "../behaviors/PeashooterBehavior";
 
 export class Peashooter extends Plant {
-  name = "Peashooter";
+  override readonly name: string = "Peashooter";
 
-  image = peashooterImage;
+  protected override _image = peashooterImage;
 
-  plantType = "shooter";
+  override readonly plantType: string = "shooter";
 
-  health = 50;
+  override readonly cost: number = 100;
 
-  cost = 100;
+  override readonly reloadSpeed: number = 2000;
 
-  reloadSpeed = 2000;
+  override readonly behavior = new PeashooterBehavior();
 
-  projection: Pea;
-
-  readonly behavior = new PeashooterBehavior();
+  protected override _health = 50;
 
   constructor(public x: number, public y: number) {
     super(x, y);
-
-    this.projection = new Pea(x, y, this);
   }
 }

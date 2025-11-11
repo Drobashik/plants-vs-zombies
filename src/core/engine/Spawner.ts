@@ -19,7 +19,11 @@ export const getRandom = (min: number, max: number) => {
 };
 
 export class Spawner {
-  spawnerLoop = new GameLoop();
+  _spawnerLoop = new GameLoop();
+
+  get spawnerLoop() {
+    return this._spawnerLoop;
+  }
 
   spawnLoop<T extends Entity>(
     createEntity: () => T,
@@ -28,7 +32,7 @@ export class Spawner {
     let waitingForDelay = true;
     let delayCount = 0;
 
-    this.spawnerLoop.loop(() => {
+    this._spawnerLoop.loop(() => {
       const { spawn, delays, type } = retrieveSpawnOptions(createEntity());
 
       const { min, max } = delays[delayCount];

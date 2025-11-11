@@ -45,7 +45,7 @@ function clampRange(r: MsRange): MsRange {
 }
 
 export class FlagWaveGenerator {
-  flags: Wave[][] = [];
+  readonly flags: Wave[][] = [];
 
   private readonly wavesPerFlag: number;
   private readonly startCooldown: MsRange;
@@ -74,7 +74,7 @@ export class FlagWaveGenerator {
     this.generateFlags();
   }
 
-  calculateCount(waveCount: number, flagCount: number, difficulty: number) {
+  private calculateCount(waveCount: number, flagCount: number, difficulty: number) {
     let count = BASE_ENTITY_COUNT;
 
     const isFinal = waveCount === this.wavesPerFlag;
@@ -95,7 +95,7 @@ export class FlagWaveGenerator {
     return count;
   }
 
-  calculateCooldown(waveCount: number, flagCount: number) {
+  private calculateCooldown(waveCount: number, flagCount: number) {
     const isFinal = waveCount === this.wavesPerFlag;
 
     let cooldown = isFinal ? this.finalCooldown : this.baseCooldown;

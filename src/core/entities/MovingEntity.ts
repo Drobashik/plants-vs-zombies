@@ -3,15 +3,15 @@ import { Entity } from "./Entity";
 export type MovingEntityAction = "walking" | "paused" | "damaging";
 
 export class MovingEntity extends Entity {
-  name = "Entity name";
+  readonly name: string = "Moving Entity";
 
-  image = "";
+  protected override _image = "";
+  
+  readonly damageSpeed: number = 1000;
+  
+  speed = 1000; // milliseconds per cell
 
-  speed = 1000; // seconds per cell
-
-  damageSpeed = 1000;
-
-  action: MovingEntityAction = "walking";
+  override action: MovingEntityAction = "walking";
 
   constructor(public x: number, public y: number) {
     super(x, y);

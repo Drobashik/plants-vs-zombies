@@ -1,27 +1,22 @@
-import {
-  MovingEntity,
-  type MovingEntityAction,
-} from "../entities/MovingEntity";
+import { MovingEntity } from "../entities/MovingEntity";
 import peaImage from "../../images/pea.webp";
 import { PeaBehavior } from "../behaviors/PeaBehavior";
 import type { Plant } from "../plants/Plant";
 
 export class Pea extends MovingEntity {
-  speed = 350;
+  protected override _image = peaImage;
 
-  image = peaImage;
+  override readonly type: string = "bullet";
 
-  type = "bullet";
+  override speed = 350;
 
-  damage = 10;
-
-  damageSpeed = 50;
-
-  health = 1;
-
-  action: MovingEntityAction = "walking";
-
-  behavior = new PeaBehavior();
+  override damage = 10;
+  
+  override readonly damageSpeed: number = 50;
+  
+  protected override _health = 1;
+  
+  readonly behavior = new PeaBehavior();
 
   constructor(x: number, y: number, private _parentPlant?: Plant) {
     super(x, y);

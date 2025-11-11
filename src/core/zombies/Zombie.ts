@@ -4,19 +4,19 @@ import withoutHandZombieImage from "../../images/withoutHandZombie.webp";
 import { MovingEntity } from "../entities/MovingEntity";
 
 export class Zombie extends MovingEntity {
-  readonly type = "zombie";
+  override readonly type: string = "zombie";
 
-  name = "Zombie";
+  override readonly name: string = "Zombie";
 
-  image = zombieImage;
-
-  speed = 7500;
-
-  damage = 10;
-
-  health = 100;
+  protected override _image = zombieImage;
 
   readonly behavior = new ZombieBehavior();
+
+  override speed = 7500;
+
+  override damage = 10;
+
+  protected override _health = 100;
 
   constructor(public x: number, public y: number) {
     super(x, y);
@@ -28,7 +28,7 @@ export class Zombie extends MovingEntity {
 
   protected makeZombieWithoutHand() {
     if (this.health < 50) {
-      this.image = withoutHandZombieImage;
+      this._image = withoutHandZombieImage;
     }
   }
 

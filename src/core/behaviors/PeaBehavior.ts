@@ -8,6 +8,7 @@ export class PeaBehavior implements EntityBehavior {
     const { moveLoop, garden, gameLifecycle } = controller;
 
     pea.isRecentlyAppeared = true;
+
     garden.placeEntity(pea);
 
     const peaSpeed = pea.speed;

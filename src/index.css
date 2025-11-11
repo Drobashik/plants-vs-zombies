@@ -225,7 +225,7 @@ button {
   max-width: 25px;
   position: absolute;
 
-  transform: translate(-50%, -80%);
+  transform: translate(-50%, -95%);
   animation: bullet linear infinite;
 }
 
@@ -256,7 +256,7 @@ button {
 }
 
 .entity.plant {
-  max-width: 65px;
+  max-width: 75px;
   transform-origin: 50% 100%;
 
   --sway-deg: 1.3deg;
@@ -370,22 +370,22 @@ button {
 
 @keyframes damage {
   0% {
-    transform: translate(-50%, -15%) rotate(0deg) scale(1);
+    transform: translate(-50%, -25%) rotate(0deg) scale(1);
   }
   25% {
-    transform: translate(calc(-50% - 2px), -16%) rotate(1deg)
+    transform: translate(calc(-50% - 2px), -26%) rotate(1deg)
       scale(1.02, var(--squash));
   }
   45% {
-    transform: translate(calc(-50% + var(--recoil-px)), -14.5%) rotate(-1.2deg)
+    transform: translate(calc(-50% + var(--recoil-px)), -24.5%) rotate(-1.2deg)
       scale(0.98, 1.02);
   }
   70% {
-    transform: translate(calc(-50% + 1px), -15.5%) rotate(0.4deg)
+    transform: translate(calc(-50% + 1px), -25.5%) rotate(0.4deg)
       scale(1.01, 0.98);
   }
   100% {
-    transform: translate(-50%, -15%) rotate(0deg) scale(1);
+    transform: translate(-50%, -25%) rotate(0deg) scale(1);
   }
 }
 
@@ -455,7 +455,7 @@ button {
 
   position: relative;
 
-  left: -10%;
+  left: -15%;
 
   object-fit: cover;
 }
