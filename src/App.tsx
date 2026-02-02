@@ -5,14 +5,17 @@ import flagImage from "./images/flag.webp";
 import type { Entity } from "./core/entities/Entity";
 import sunImage from "./images/sun.webp";
 import { gameManager, plantManager } from "./core";
+import { MovingEntity } from "./core/entities/MovingEntity";
 
 const buttonLabel = {
   idle: "Start",
   play: "Pause",
   pause: "Resume",
-  win: "Play again",
-  lose: "Play again",
+  win: "You won! Restart",
+  lose: "You lost! Restart",
 };
+
+const MAX_BUDGET = 9999;
 
 function App() {
   const [_, triggerRender] = useState(0);
@@ -20,32 +23,27 @@ function App() {
 
   useEffect(() => {
     gameManager.setRenderFn(rerender);
+    plantManager.setRenderFn(rerender);
   }, []);
 
   const handleGameStartStop = () => {
-    if (gameManager.gameState === "idle") {
-      gameManager.startGame();
-    } else {
-      gameManager.resumeOrPauseGame();
-    }
+    gameManager.executeGameAction();
   };
 
   const togglePlant = (plantName: string) => {
     plantManager.togglePlant(plantName);
-
-    rerender();
   };
 
   const addPlant = (cell: Cell) => {
-    plantManager.addPlant(cell, gameManager.controller);
+    const createdPlant = plantManager.addPlant(cell);
 
-    rerender();
+    if (!createdPlant) return;
+
+    createdPlant.behavior?.start(gameManager.controller, createdPlant);
   };
 
   const pickEntity = (entity: Entity) => {
     plantManager.pickEntity(entity);
-
-    rerender();
   };
 
   return (
@@ -55,16 +53,27 @@ function App() {
           <div
             key={plantTool.plant.name}
             className={`tool-plant ${plantTool.selected ? "selected" : ""} ${
-              plantTool.disabled || gameManager.gameState !== "play"
+              plantTool.disabled ||
+              gameManager.gameState !== "play" ||
+              plantTool.cooldownActive
                 ? "disabled"
                 : ""
             }`}
             onClick={() => togglePlant(plantTool.plant.name)}
           >
+            {plantTool.cooldownActive && (
+              <div
+                className="cooldown"
+                style={{
+                  animationDuration: `${plantTool.plant.cooldown}ms`,
+                }}
+              ></div>
+            )}
             <img
               src={plantTool.plant.image}
               alt={`${plantTool.plant.name} menu`}
             />
+            <p className="tool-cost">{plantTool.plant.cost}</p>
           </div>
         ))}
       </div>
@@ -73,7 +82,9 @@ function App() {
         <div className="head-panel">
           <div className="budget-container">
             <img src={sunImage} alt="" />
-            <div className="budget">{plantManager.budget.value}</div>
+            <div className="budget">
+              {Math.min(plantManager.budget.value, MAX_BUDGET)}
+            </div>
           </div>
 
           {gameManager.gameState !== "idle" && (
@@ -123,11 +134,15 @@ function App() {
                   {cell.entities.map((entity) => (
                     <img
                       key={entity.id}
-                      style={{
-                        animationDuration: `${entity.speed + 0.1}ms`,
-                      }}
+                      style={
+                        entity instanceof MovingEntity
+                          ? {
+                              animationDuration: `${entity.speed + 0.1}ms`,
+                            }
+                          : {}
+                      }
                       className={`entity ${entity.type} ${
-                        gameManager.gameState === "play"
+                        gameManager.gameState !== "pause"
                           ? entity.action
                           : "paused"
                       } ${entity.isHurt ? "hurting" : ""} ${

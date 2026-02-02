@@ -56,6 +56,15 @@ export class GardenMap {
   }
 
   removeAllEntities() {
+    this._cells = this._cells.map((rows) =>
+      rows.map((cell) => {
+        cell.entities.forEach((e) => {
+          e.isPlacedOnMap = false;
+        });
+        return cell;
+      })
+    );
+
     this._cells = [];
 
     this.createMap();

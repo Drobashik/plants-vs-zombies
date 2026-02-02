@@ -1,25 +1,17 @@
 import { Entity } from "../entities/Entity";
+import { Random } from "../utils/Random";
 import { GameLoop } from "./GameLoop";
-
-export type RandomPosition = {
-  min: number;
-  max: number;
-};
 
 type MsRange = { min: number; max: number };
 
 type SpawnOptions = {
   type: "instant" | "delay";
-  delays: MsRange[];
+  delaying: () => MsRange[];
   spawn: () => "stop" | "continue";
 };
 
-export const getRandom = (min: number, max: number) => {
-  return Math.round(Math.random() * (max - min) + min);
-};
-
 export class Spawner {
-  _spawnerLoop = new GameLoop();
+  private _spawnerLoop = new GameLoop();
 
   get spawnerLoop() {
     return this._spawnerLoop;
@@ -32,8 +24,12 @@ export class Spawner {
     let waitingForDelay = true;
     let delayCount = 0;
 
+    const random = new Random();
+
     this._spawnerLoop.loop(() => {
-      const { spawn, delays, type } = retrieveSpawnOptions(createEntity());
+      const { spawn, delaying, type } = retrieveSpawnOptions(createEntity());
+
+      const delays = delaying();
 
       const { min, max } = delays[delayCount];
 
@@ -41,7 +37,7 @@ export class Spawner {
         delayCount++;
       }
 
-      const delayTime = getRandom(min, max);
+      const delayTime = random.next(min, max);
 
       if (type === "instant") {
         const decision = spawn();

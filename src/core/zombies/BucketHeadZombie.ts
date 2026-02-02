@@ -9,7 +9,7 @@ export class BucketHeadZombie extends Zombie {
 
   protected override _image = bucketHeadZombieImage;
 
-  protected override _health = 400;
+  protected override _health = 1100;
 
   constructor(x: number, y: number) {
     super(x, y);
@@ -18,15 +18,15 @@ export class BucketHeadZombie extends Zombie {
   takeDamage(damage: number) {
     super.takeDamage(damage);
 
-    if (this.health < 300) {
+    if (this.health < 800) {
       this._image = damagedBucketZombieImage;
     }
 
-    if (this.health < 200) {
+    if (this.health < 500) {
       this._image = heavilyDamagedBucketZombieImage;
     }
 
-    if (this.health < 100) {
+    if (this.health < 200) {
       this._image = zombieImage;
     }
 

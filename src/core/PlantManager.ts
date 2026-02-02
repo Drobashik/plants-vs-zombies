@@ -1,10 +1,12 @@
 import type { Budget } from "./Budget";
-import type { EntityController } from "./engine/EntityController";
 import type { Entity } from "./entities/Entity";
 import type { Cell, GardenMap } from "./GardenMap";
+import type { Plant } from "./plants/Plant";
 import type { PlantToolbox } from "./PlantToolbox";
 
 export class PlantManager {
+  private render: () => void;
+
   constructor(
     private _toolbox: PlantToolbox,
     private _budget: Budget,
@@ -19,7 +21,25 @@ export class PlantManager {
     return this._toolbox;
   }
 
-  addPlant(cell: Cell, controller: EntityController) {
+  setRenderFn(renderFn?: () => void) {
+    const emtpyFn = () => {};
+
+    this.render = renderFn || emtpyFn;
+  }
+
+  applyPlantCooldown(plant: Plant) {
+    this._toolbox.setPlantTools(this._toolbox.toggleCooldown(plant.name, true));
+
+    setTimeout(() => {
+      this._toolbox.setPlantTools(
+        this._toolbox.toggleCooldown(plant.name, false)
+      );
+
+      this.render();
+    }, plant.cooldown);
+  }
+
+  addPlant(cell: Cell) {
     const createdPlant = this._toolbox.createPlant(cell.x, cell.y);
 
     const cellPlant = this.garden
@@ -36,7 +56,11 @@ export class PlantManager {
 
     this._toolbox.checkPlantsDisabled(this._budget.value);
 
-    createdPlant.behavior.start(controller, createdPlant);
+    this.applyPlantCooldown(createdPlant);
+
+    this.render();
+
+    return createdPlant;
   }
 
   pickEntity(entity: Entity & { profit: number }) {
@@ -45,11 +69,15 @@ export class PlantManager {
     this._toolbox.checkPlantsDisabled(this._budget.value);
 
     this.garden.removeEntity(entity);
+
+    this.render()
   }
 
   togglePlant(plantName: string) {
     const plantTool = this._toolbox.getPlantTool(plantName);
 
     this._toolbox.togglePlantSelection(plantName, !plantTool?.selected);
+
+    this.render()
   }
 }

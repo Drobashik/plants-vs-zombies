@@ -31,7 +31,7 @@ export class PeaBehavior implements EntityBehavior {
       if (zombie) {
         controller.startDamaging(pea, zombie);
 
-        controller.hurtEntity(zombie, pea.damageSpeed);
+        controller.hurtEntity(zombie);
 
         garden.removeEntity(pea);
 

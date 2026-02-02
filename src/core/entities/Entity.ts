@@ -3,7 +3,7 @@ import type { EntityBehavior } from "../behaviors/EntityBehavior";
 export type EntityClass<T> = new (x: number, y: number) => T;
 
 export class Entity {
-  readonly id = Date.now();
+  readonly id = self.crypto.randomUUID();
 
   readonly type: string = "unknown";
 

@@ -13,7 +13,7 @@ export class PeashooterBehavior implements EntityBehavior {
       () => new Pea(x, y),
       (pea) => ({
         type: "instant",
-        delays: [{ min: reloadSpeed, max: reloadSpeed }],
+        delaying: () => [{ min: reloadSpeed, max: reloadSpeed }],
         spawn: () => {
           gameLifecycle.onTick();
 

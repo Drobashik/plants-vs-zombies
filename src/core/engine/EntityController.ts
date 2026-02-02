@@ -5,13 +5,12 @@ import type { Entity } from "../entities/Entity";
 import type { MovingEntity } from "../entities/MovingEntity";
 import type { GameState } from "../GameManager";
 
-type GameOutcome = "win" | "lose";
-
 type Direction = "left" | "right";
 
 export type GameLyfecycle = {
-  getGameState: () => GameState;
-  onGameOver: (outcome: GameOutcome) => void;
+  onGameState: () => { state: GameState; isGameEnd: boolean };
+  onGameChange?: () => boolean;
+  onGameOver: () => void | boolean;
   onTick: () => void;
 };
 
@@ -43,15 +42,16 @@ export class EntityController {
     return this._gameLifecycle;
   }
 
-  triggerGameOver(outcome: GameOutcome) {
-    this._gameLifecycle.onGameOver(outcome);
+  triggerGameOver() {
+    this._gameLifecycle.onGameOver();
   }
 
-  hurtEntity(entity: Entity, hurtTime = 50) {
+  hurtEntity(entity: Entity, hurtTime = 250) {
     entity.isHurt = true;
 
     setTimeout(() => {
       entity.isHurt = false;
+      this._gameLifecycle.onTick();
     }, hurtTime);
   }
 

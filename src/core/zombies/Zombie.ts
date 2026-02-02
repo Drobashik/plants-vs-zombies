@@ -12,11 +12,13 @@ export class Zombie extends MovingEntity {
 
   readonly behavior = new ZombieBehavior();
 
+  override damageSpeed: number = 500;
+
   override speed = 7500;
 
-  override damage = 10;
+  override damage = 20;
 
-  protected override _health = 100;
+  protected override _health = 200;
 
   constructor(public x: number, public y: number) {
     super(x, y);

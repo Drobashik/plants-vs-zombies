@@ -12,7 +12,7 @@ export class SunflowerBehavior implements EntityBehavior {
       () => new Sun(x, y),
       (sun) => ({
         type: "delay",
-        delays: [
+        delaying: () => [
           {
             min: firstReloadSpeed,
             max: firstReloadSpeed,
@@ -25,7 +25,9 @@ export class SunflowerBehavior implements EntityBehavior {
         spawn: () => {
           gameLifecycle.onTick();
 
-          if (!sunflower.isPlacedOnMap) {
+          const { isGameEnd } = gameLifecycle.onGameState();
+
+          if (!sunflower.isPlacedOnMap || isGameEnd) {
             return "stop";
           }
 

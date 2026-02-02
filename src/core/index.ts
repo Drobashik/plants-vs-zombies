@@ -10,9 +10,9 @@ import { PlantToolbox } from "./PlantToolbox";
 
 const gardenMap = new GardenMap(GARDEN_WIDTH, GARDEN_HEIGHT);
 
-const flagsGenerator = new FlagWaveGenerator(level);
+const { flags } = new FlagWaveGenerator(level);
 
-export const gameManager = new GameManager(gardenMap, flagsGenerator);
+export const gameManager = new GameManager(gardenMap, flags);
 
 export const plantManager = new PlantManager(
   new PlantToolbox<Plant>(plants),

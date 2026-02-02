@@ -15,9 +15,11 @@ export class Peashooter extends Plant {
 
   override readonly behavior = new PeashooterBehavior();
 
-  protected override _health = 50;
+  override readonly cooldown: number = 6000;
 
-  constructor(public x: number, public y: number) {
+  protected override _health = 300;
+
+  constructor(x: number, y: number) {
     super(x, y);
   }
 }
