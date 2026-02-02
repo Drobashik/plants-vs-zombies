@@ -10,7 +10,7 @@ export class Pea extends MovingEntity {
 
   override speed = 350;
 
-  override damage = 10;
+  override damage = 20;
   
   override readonly damageSpeed: number = 50;
   

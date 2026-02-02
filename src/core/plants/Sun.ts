@@ -12,9 +12,7 @@ export class Sun extends Entity {
 
   readonly profit = 25;
 
-  readonly timeToDisappear = 6000;
-
-  readonly appearTime = 8000;
+  readonly timeToDisappear = 12000;
 
   readonly isPickable = true;
 

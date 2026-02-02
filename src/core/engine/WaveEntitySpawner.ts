@@ -1,8 +1,10 @@
 import { GameLoop } from "./GameLoop";
-import { getRandom, Spawner } from "./Spawner";
+import { Spawner } from "./Spawner";
 import type { MovingEntity } from "../entities/MovingEntity";
 import type { Wave, WeightEntity } from "./FlagWaveGenerator";
-import { INITIAL_ENTITY_COOLDOWN } from "../../constants";
+import { FINAL_COOLDOWN, INITIAL_ENTITY_COOLDOWN } from "../../constants";
+import type { GameLyfecycle } from "./EntityController";
+import { Random } from "../utils/Random";
 
 export class WaveEntitySpawner extends Spawner {
   private _waveLoop: GameLoop = new GameLoop(INITIAL_ENTITY_COOLDOWN);
@@ -15,7 +17,10 @@ export class WaveEntitySpawner extends Spawner {
 
   private _totalFlags = 0;
 
-  constructor(private flags: Wave[][]) {
+  constructor(
+    private flags: Wave[][],
+    private gameLifecycle: Partial<GameLyfecycle>
+  ) {
     super();
 
     this._totalFlags = flags.length;
@@ -49,11 +54,22 @@ export class WaveEntitySpawner extends Spawner {
     return entities[entities.length - 1].Entity;
   }
 
+  private restoreAll() {
+    this._gameCompletion = 0;
+    this.flagCount = 0;
+    this.waveCount = 0;
+  }
+
   performWaveSpawn(spawn: (entity: MovingEntity) => void) {
+    this.restoreAll();
+
     let completedWaves = 0;
     let totalFlagWaves = -1;
 
     let totalWaves = 0;
+    let isNormalWave = true;
+
+    const random = new Random();
 
     for (let i = 0; i < this.flags.length; i++) {
       totalWaves += this.flags[i].length;
@@ -70,11 +86,23 @@ export class WaveEntitySpawner extends Spawner {
 
       const isLastFlag = this.flagCount === this.flags.length;
 
-      if (isLastFlag) {
-        this._waveLoop.stopAll();
+      if (this.waveCount === totalFlagWaves - 1 && isNormalWave) {
+        const shouldBreak = this.gameLifecycle.onGameChange?.() ?? false;
 
-        return true;
+        if (shouldBreak) {
+          isNormalWave = false;
+        }
+
+        return FINAL_COOLDOWN;
       }
+
+      if (isLastFlag) {
+        const isGameStopped = this.gameLifecycle.onGameOver?.();
+
+        return isGameStopped ?? FINAL_COOLDOWN;
+      }
+
+      isNormalWave = true;
 
       const { cooldown, entities, interval, count } =
         this.flags[this.flagCount][this.waveCount];
@@ -92,10 +120,10 @@ export class WaveEntitySpawner extends Spawner {
       const { min, max } = interval;
 
       super.spawnLoop(
-        () => new (this.pickWeighted(entities))(8, getRandom(0, 4)),
+        () => new (this.pickWeighted(entities))(8, random.next(0, 4)),
         (entity) => ({
           type: "instant",
-          delays: [{ min, max }],
+          delaying: () => [{ min, max }],
           spawn: () => {
             if (count === entitySpawnCount) return "stop";
 
@@ -108,7 +136,7 @@ export class WaveEntitySpawner extends Spawner {
         })
       );
 
-      return getRandom(cooldown.min, cooldown.max);
+      return random.next(cooldown.min, cooldown.max);
     });
   }
 }

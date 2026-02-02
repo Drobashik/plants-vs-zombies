@@ -13,7 +13,7 @@ export class MovingEntity extends Entity {
 
   override action: MovingEntityAction = "walking";
 
-  constructor(public x: number, public y: number) {
+  constructor(x: number, y: number) {
     super(x, y);
   }
 

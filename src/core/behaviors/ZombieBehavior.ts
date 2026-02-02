@@ -18,7 +18,7 @@ export class ZombieBehavior implements EntityBehavior {
     if (plant) {
       controller.startDamaging(zombie, plant);
 
-      controller.hurtEntity(plant, zombie.damageSpeed / 2);
+      controller.hurtEntity(plant);
 
       const isPlantEntityDead = plant.health <= 0;
 
@@ -60,7 +60,7 @@ export class ZombieBehavior implements EntityBehavior {
       const isZombieAtEdge = zombie.x === 0;
 
       if (isZombieAtEdge && !zombie.isDamaging) {
-        controller.triggerGameOver("lose");
+        controller.triggerGameOver();
 
         return true;
       }

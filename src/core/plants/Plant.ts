@@ -10,9 +10,11 @@ export class Plant extends Entity {
 
   readonly reloadSpeed: number = 0;
 
+  readonly cooldown: number = 0;
+
   protected override _health = 10;
 
-  constructor(public x: number, public y: number) {
+  constructor(x: number, y: number) {
     super(x, y);
   }
 }

@@ -1,9 +1,10 @@
 import { SunBehavior } from "./behaviors/SunBehavior";
 import { EntityController } from "./engine/EntityController";
-import { FlagWaveGenerator } from "./engine/FlagWaveGenerator";
+import { type Wave } from "./engine/FlagWaveGenerator";
 import type { GameLoop } from "./engine/GameLoop";
 import { WaveEntitySpawner } from "./engine/WaveEntitySpawner";
 import { GardenMap } from "./GardenMap";
+import { Zombie } from "./zombies/Zombie";
 
 export type GameState = "idle" | "play" | "pause" | "win" | "lose";
 
@@ -18,18 +19,33 @@ export class GameManager {
 
   private render: () => void;
 
-  constructor(
-    private _garden: GardenMap,
-    private flagsGenerator: FlagWaveGenerator
-  ) {
-    this.waveSpawner = new WaveEntitySpawner(this.flagsGenerator.flags);
+  constructor(private _garden: GardenMap, private levelWaves: Wave[][]) {
+    this.waveSpawner = new WaveEntitySpawner(this.levelWaves, {
+      onGameChange: () => {
+        const zombies = this._garden.getEntities([Zombie]);
+
+        if (!zombies.length) {
+          return true;
+        }
+
+        return false;
+      },
+      onGameOver: () => {
+        this.winGame();
+      },
+    });
 
     this.controller = new EntityController(this._garden, {
-      getGameState: () => this._gameState,
+      onGameState: () => ({
+        state: this._gameState,
+        isGameEnd: this._gameState === "win" || this._gameState === "lose",
+      }),
       onTick: () => {
         this.render();
       },
-      onGameOver: () => {},
+      onGameOver: () => {
+        this.loseGame();
+      },
     });
 
     this.gameLoops.push(
@@ -52,15 +68,15 @@ export class GameManager {
   }
 
   private pauseGame() {
-    for (const loop of this.gameLoops) loop.pauseAll();
-
     this._gameState = "pause";
+
+    for (const loop of this.gameLoops) loop.pauseAll();
   }
 
   private resumeGame() {
-    for (const loop of this.gameLoops) loop.resumeAll();
-
     this._gameState = "play";
+
+    for (const loop of this.gameLoops) loop.resumeAll();
   }
 
   setRenderFn(renderFn?: () => void) {
@@ -69,7 +85,23 @@ export class GameManager {
     this.render = renderFn || emtpyFn;
   }
 
-  restartGame() {
+  private loseGame() {
+    this._gameState = "lose";
+
+    this.stopGame();
+  }
+
+  private winGame() {
+    const zombies = this._garden.getEntities([Zombie]);
+
+    if (!zombies.length) {
+      this._gameState = "win";
+
+      return true;
+    }
+  }
+
+  private restartGame() {
     this._gameState = "idle";
 
     this._garden.removeAllEntities();
@@ -77,37 +109,31 @@ export class GameManager {
     this.startGame();
   }
 
-  startGame() {
+  private startGame() {
+    this._gameState = "play";
+
     this.waveSpawner.performWaveSpawn((zombie) => {
       zombie.behavior.start(this.controller, zombie);
     });
 
     SunBehavior.startAmbientSpawn(this.controller);
 
-    this._gameState = "play";
-
     this.render();
   }
 
-  endGame(outcome: "win" | "lose") {
-    this._gameState = outcome;
-
-    this.stopGame();
-
-    this.render();
-  }
-
-  resumeOrPauseGame() {
+  executeGameAction() {
     switch (this._gameState) {
+      case "idle":
+        this.startGame();
+        break;
       case "pause":
         this.resumeGame();
         break;
       case "play":
         this.pauseGame();
         break;
-      case "lose":
+      default:
         this.restartGame();
-        break;
     }
 
     this.render();

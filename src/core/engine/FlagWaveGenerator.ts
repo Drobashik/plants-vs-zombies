@@ -17,7 +17,7 @@ type FlagEntities<T extends MovingEntity = Zombie> = {
 type WaveGeneratorOptions = {
   wavesPerFlag?: number;
   startCooldown?: MsRange;
-  baseCooldown?: MsRange;
+  baseCooldown?: MsRange
   finalCooldown?: MsRange;
   baseInterval?: MsRange;
 };
@@ -35,6 +35,8 @@ const BASE_ENTITY_COUNT = 5;
 const HIGH_ENTITY_COUNT = 9;
 const HIGHEST_ENTITY_COUNT = 12;
 const MAX_ENTITY_COUNT = 20;
+
+const FLAG_FINAL_COOLDOWN = { min: 1000, max: 1000 };
 
 function randInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -58,11 +60,12 @@ export class FlagWaveGenerator {
     options: WaveGeneratorOptions = {}
   ) {
     this.wavesPerFlag = options.wavesPerFlag ?? 10;
+
     this.startCooldown = clampRange(
       options.baseCooldown ?? { min: 15000, max: 30000 }
     );
     this.baseCooldown = clampRange(
-      options.baseCooldown ?? { min: 12000, max: 20000 }
+      options.baseCooldown ?? { min: 15000, max: 20000 }
     );
     this.finalCooldown = clampRange(
       options.finalCooldown ?? { min: 30000, max: 40000 }
@@ -74,7 +77,11 @@ export class FlagWaveGenerator {
     this.generateFlags();
   }
 
-  private calculateCount(waveCount: number, flagCount: number, difficulty: number) {
+  private calculateCount(
+    waveCount: number,
+    flagCount: number,
+    difficulty: number
+  ) {
     let count = BASE_ENTITY_COUNT;
 
     const isFinal = waveCount === this.wavesPerFlag;
@@ -96,19 +103,21 @@ export class FlagWaveGenerator {
   }
 
   private calculateCooldown(waveCount: number, flagCount: number) {
-    const isFinal = waveCount === this.wavesPerFlag;
+    const isPreFinalWave = waveCount === this.wavesPerFlag - 1;
+    const isFinalWave = waveCount === this.wavesPerFlag;
+    const isFinalFlag = flagCount === this.flagWaves.length - 1;
 
-    let cooldown = isFinal ? this.finalCooldown : this.baseCooldown;
+    let cooldown = isPreFinalWave ? this.finalCooldown : this.baseCooldown;
 
     cooldown =
-      waveCount <= 4 && flagCount === 0
-        ? this.startCooldown
-        : this.baseCooldown;
+      waveCount <= 4 && flagCount === 0 ? this.startCooldown : cooldown;
+
+    cooldown = isFinalWave && isFinalFlag ? FLAG_FINAL_COOLDOWN : cooldown;
 
     return cooldown;
   }
 
-  generateFlags() {
+  private generateFlags() {
     for (let flagCount = 0; flagCount < this.flagWaves.length; flagCount++) {
       const waves: Wave[] = [];
       const flag = this.flagWaves[flagCount];

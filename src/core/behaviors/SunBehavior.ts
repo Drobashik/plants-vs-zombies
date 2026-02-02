@@ -1,23 +1,40 @@
 import type { EntityController } from "../engine/EntityController";
-import { getRandom } from "../engine/Spawner";
 import { Sun } from "../plants/Sun";
+import { Random } from "../utils/Random";
 import type { EntityBehavior } from "./EntityBehavior";
 
 export class SunBehavior implements EntityBehavior {
+  private static appearTime: number = 4000;
+  private static maxAppearTime = 10000;
+
   static startAmbientSpawn(controller: EntityController) {
     const { spawner, garden, gameLifecycle } = controller;
 
+    SunBehavior.appearTime = 4000;
+
+    const random = new Random();
+
     spawner.spawnLoop(
-      () => new Sun(getRandom(2, garden.width - 2), getRandom(0, 2)),
+      () => new Sun(random.next(2, garden.width - 2), random.next(0, 2)),
       (sun) => ({
         type: "delay",
-        delays: [{ min: sun.appearTime, max: sun.appearTime }],
+        delaying: () => {
+          SunBehavior.appearTime *= 1.02;
+
+          const time = Math.min(
+            SunBehavior.appearTime,
+            SunBehavior.maxAppearTime
+          );
+
+          return [{ min: time, max: time }];
+        },
+
         spawn: () => {
           gameLifecycle.onTick();
 
-          const gameState = gameLifecycle.getGameState();
+          const { isGameEnd } = gameLifecycle.onGameState();
 
-          if (gameState === "lose" || gameState === "win") {
+          if (isGameEnd) {
             return "stop";
           }
 

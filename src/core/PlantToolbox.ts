@@ -6,13 +6,14 @@ type PlantTool<T> = {
   Instance: EntityClass<T>;
   selected: boolean;
   disabled: boolean;
+  cooldownActive: boolean;
   plant: T;
 };
 
 export class PlantToolbox<T extends Plant = Plant> {
-  _plantTools: PlantTool<T>[] = [];
+  private _plantTools: PlantTool<T>[] = [];
 
-  _selectedPlant: PlantTool<T> | null = null;
+  private _selectedPlant: PlantTool<T> | null = null;
 
   constructor(private PlantInstances: EntityClass<T>[]) {
     for (const PlantInstance of this.PlantInstances) {
@@ -22,6 +23,7 @@ export class PlantToolbox<T extends Plant = Plant> {
         Instance: PlantInstance,
         selected: false,
         disabled: INITIAL_BUDGET < plant.cost,
+        cooldownActive: false,
         plant,
       });
     }
@@ -33,6 +35,29 @@ export class PlantToolbox<T extends Plant = Plant> {
 
   get selectedPlant() {
     return this._selectedPlant;
+  }
+
+  toggleCooldown(plantName: string, value: boolean) {
+    return this._plantTools.map((plantTool) =>
+      plantTool.plant.name === plantName
+        ? {
+            ...plantTool,
+            cooldownActive: value,
+          }
+        : plantTool
+    );
+  }
+
+  setPlantTools(plantTools: PlantTool<T>[]) {
+    this._plantTools = plantTools;
+  }
+
+  applyCooldown(plant: Plant) {
+    this._plantTools = this.toggleCooldown(plant.name, true);
+
+    setTimeout(() => {
+      this._plantTools = this.toggleCooldown(plant.name, false);
+    }, plant.cooldown);
   }
 
   checkPlantsDisabled(budgetValue: number) {

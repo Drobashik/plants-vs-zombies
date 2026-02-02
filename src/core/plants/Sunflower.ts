@@ -17,9 +17,11 @@ export class Sunflower extends Plant {
 
   readonly firstReloadSpeed = 6000;
 
-  protected override _health = 30;
+  protected override _health = 300;
 
-  constructor(public x: number, public y: number) {
+  override readonly cooldown: number = 8000;
+
+  constructor(x: number, y: number) {
     super(x, y);
   }
 }

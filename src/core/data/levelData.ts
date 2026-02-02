@@ -1,5 +1,6 @@
 import { Peashooter } from "../plants/Peashooter";
 import { Sunflower } from "../plants/Sunflower";
+import { Wallnut } from "../plants/Wallnut";
 import { BucketHeadZombie } from "../zombies/BucketHeadZombie";
 import { ConeHeadZombie } from "../zombies/ConeHeadZombie";
 import { Zombie } from "../zombies/Zombie";
@@ -23,7 +24,4 @@ export const level = [
   },
 ];
 
-export const plants = [
-  Sunflower,
-  Peashooter
-]
+export const plants = [Sunflower, Peashooter, Wallnut];

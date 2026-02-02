@@ -9,7 +9,7 @@ export class ConeHeadZombie extends Zombie {
 
   protected override _image = coneHeadZombieImage;
 
-  protected override _health = 200;
+  protected override _health = 560;
 
   constructor(x: number, y: number) {
     super(x, y);
@@ -18,15 +18,15 @@ export class ConeHeadZombie extends Zombie {
   takeDamage(damage: number): void {
     super.takeDamage(damage);
 
-    if (this.health < 160) {
+    if (this.health < 440) {
       this._image = damagedConeImage;
     }
 
-    if (this.health < 130) {
+    if (this.health < 320) {
       this._image = heavilyDamagedConeImage;
     }
 
-    if (this.health < 100) {
+    if (this.health < 200) {
       this._image = zombieImage;
     }
 
